@@ -5,6 +5,7 @@ import { formatMoney } from "@/libs/helpers";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { createOrder } from "@/app/actions/orderActions";
 
 export default function PaymentPage() {
     const { cart, clearCart } = useCart();
@@ -19,18 +20,27 @@ export default function PaymentPage() {
 
     const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
 
+
     const handlePayment = async () => {
         setIsProcessing(true);
 
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
-        setIsProcessing(false);
-        setIsSuccess(true);
+            await createOrder(cart, total);
 
-        setTimeout(() => {
-            clearCart();
-            router.push('/');
-        }, 2000);
+            setIsProcessing(false);
+            setIsSuccess(true);
+
+            setTimeout(() => {
+                clearCart();
+                router.push('/');
+            }, 3000);
+        } catch (error) {
+            console.error(error);
+            setIsProcessing(false);
+            alert("Payment failed: " + (error instanceof Error ? error.message : "Unknown error"));
+        }
     };
 
     if (cart.length === 0 && !isSuccess) {
