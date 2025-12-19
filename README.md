@@ -5,7 +5,7 @@ Haatbazaar is a premium "Managed Marketplace" application where users can buy an
 ![Haatbazaar](public/logo.png)
 
 ## Be a Seller, Be a Buyer
-*   **Sellers**: List your unused items, wait for them to be sold, and withdraw your earnings directly to your bank/wallet.
+*   **Sellers**: List your unused items, wait for them to be sold, and withdraw vyour earnings directly to your bank/wallet.
 *   **Buyers**: Browse a wide range of verified listings, add to cart, and checkout securely using our integrated payment gateway (IME/Khalti).
 
 ## Key Features

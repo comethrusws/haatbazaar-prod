@@ -10,6 +10,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { BsPencil } from "react-icons/bs";
 import MessageButton from "@/components/MessageButton";
 import BuyBlock from "@/components/BuyBlock";
+import RelatedProducts from "@/components/RelatedProducts";
 
 type Props = {
   params: Promise<{
@@ -104,6 +105,7 @@ export default async function SingleAdPage(args: Props) {
           </p>
         </div>
       </div>
+      <RelatedProducts category={adDoc.category} currentAdId={adDoc.id} />
     </div>
   );
 }

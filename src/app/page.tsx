@@ -4,6 +4,8 @@ import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { categories } from "@/libs/helpers";
 import { BiCheck, BiLock, BiSolidTruck, BiStar } from "react-icons/bi";
+import SearchControls from "@/components/SearchControls";
+import RelatedProducts from "@/components/RelatedProducts";
 
 export const dynamic = 'force-dynamic';
 
@@ -12,17 +14,36 @@ const MALL_USER_ID = 'haatbazaar-mall';
 export default async function Home(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+
   const searchParams = await props.searchParams;
   const phrase = Array.isArray(searchParams.phrase) ? searchParams.phrase[0] : searchParams.phrase;
   const category = Array.isArray(searchParams.category) ? searchParams.category[0] : searchParams.category;
+  const sort = Array.isArray(searchParams.sort) ? searchParams.sort[0] : searchParams.sort || 'newest';
+  const radius = Array.isArray(searchParams.radius) ? searchParams.radius[0] : searchParams.radius;
+  const lat = Array.isArray(searchParams.lat) ? searchParams.lat[0] : searchParams.lat;
+  const lng = Array.isArray(searchParams.lng) ? searchParams.lng[0] : searchParams.lng;
 
   const where: any = { status: 'ACTIVE' };
 
   if (phrase) {
-    where.title = { contains: phrase, mode: 'insensitive' };
+    where.OR = [
+      { title: { contains: phrase, mode: 'insensitive' } },
+      { description: { contains: phrase, mode: 'insensitive' } },
+    ];
   }
   if (category) {
     where.category = category;
+  }
+
+  const orderBy: any = {};
+  if (sort === 'newest') {
+    orderBy.createdAt = 'desc';
+  } else if (sort === 'price-asc') {
+    orderBy.price = 'asc';
+  } else if (sort === 'price-desc') {
+    orderBy.price = 'desc';
+  } else {
+    orderBy.createdAt = 'desc';
   }
 
   const categoriesFound = await prisma.category.findMany({ orderBy: { label: 'asc' } });
@@ -52,11 +73,46 @@ export default async function Home(props: {
     where.userId = { not: MALL_USER_ID };
   }
 
-  const ads = await prisma.ad.findMany({
+  let ads = await prisma.ad.findMany({
     where,
-    orderBy: { createdAt: 'desc' },
-    take: 24,
+    orderBy,
+    take: 100,
   });
+
+  if (lat && lng) {
+    const userLat = parseFloat(lat);
+    const userLng = parseFloat(lng);
+    const radiusKm = radius ? parseFloat(radius) : undefined;
+
+    const adsWithDistance = ads.map(ad => {
+      let distance = null;
+      if (ad.latitude && ad.longitude) {
+        const R = 6371;
+        const dLat = (ad.latitude - userLat) * Math.PI / 180;
+        const dLon = (ad.longitude - userLng) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(userLat * Math.PI / 180) * Math.cos(ad.latitude * Math.PI / 180) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        distance = R * c;
+      }
+      return { ...ad, distance };
+    });
+
+    if (radiusKm) {
+      ads = adsWithDistance.filter(ad => ad.distance !== null && ad.distance <= radiusKm) as any;
+    } else {
+      ads = adsWithDistance as any;
+    }
+
+    if (sort === 'distance') {
+      ads.sort((a: any, b: any) => {
+        if (a.distance === null) return 1;
+        if (b.distance === null) return -1;
+        return a.distance - b.distance;
+      });
+    }
+  }
 
   return (
     <div className="space-y-12">
@@ -140,6 +196,8 @@ export default async function Home(props: {
           )}
         </div>
 
+        <SearchControls />
+
         {ads.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {ads.map(ad => (
@@ -154,33 +212,36 @@ export default async function Home(props: {
             </Link>
           </div>
         )}
+
+        {/* Related Products */}
+        <RelatedProducts category={category as string} />
       </section>
 
       {/* Trust Badges */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4 py-8 border-t">
         <div className="flex items-center gap-3 p-4">
-          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl"><BiCheck/></div>
+          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl"><BiCheck /></div>
           <div>
             <p className="font-bold text-gray-800">Verified Sellers</p>
             <p className="text-xs text-gray-500">100% authentic products</p>
           </div>
         </div>
         <div className="flex items-center gap-3 p-4">
-          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl"><BiLock/></div>
+          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl"><BiLock /></div>
           <div>
             <p className="font-bold text-gray-800">Secure Payments</p>
             <p className="text-xs text-gray-500">Khalti & IME Pay</p>
           </div>
         </div>
         <div className="flex items-center gap-3 p-4">
-          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl"><BiSolidTruck/></div>
+          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl"><BiSolidTruck /></div>
           <div>
             <p className="font-bold text-gray-800">Fast Delivery</p>
             <p className="text-xs text-gray-500">1 hour in Kathmandu</p>
           </div>
         </div>
         <div className="flex items-center gap-3 p-4">
-          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl"><BiStar/></div>
+          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl"><BiStar /></div>
           <div>
             <p className="font-bold text-gray-800">Buyer Protection</p>
             <p className="text-xs text-gray-500">Full refund guarantee</p>
