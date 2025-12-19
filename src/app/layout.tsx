@@ -1,29 +1,29 @@
 import Header from "@/components/Header";
-import {authOptions} from "@/libs/authOptions";
 import type { Metadata } from "next";
-import {getServerSession} from "next-auth";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Home | classifiedAds",
-  description: "Hello World",
+  title: "Haatbazaar",
+  description: "Premium Marketplace",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions);
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <Header session={session} />
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={inter.className}>
+          <Header />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
