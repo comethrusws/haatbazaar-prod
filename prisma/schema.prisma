@@ -21,6 +21,10 @@ model User {
     reviewsReceived Review[]       @relation("ReceivedReviews")
     conversations   Conversation[] @relation("UserConversations")
     messagesSent    Message[]
+
+    balance       Float   @default(0.0)
+    accountNumber String?
+    orders        Order[]
 }
 
 model Ad {
@@ -32,6 +36,7 @@ model Ad {
     contact     String
     images      String[]
     location    Json?
+    status      String   @default("ACTIVE") // ACTIVE, SOLD, ARCHIVED
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
 
@@ -78,4 +83,16 @@ model Message {
 
     senderId String
     sender   User   @relation(fields: [senderId], references: [id])
+}
+
+model Order {
+    id                String   @id @default(uuid())
+    total             Float
+    status            String   @default("PENDING") // PENDING, PAID, DELIVERED
+    items             Json
+    createdAt         DateTime @default(now())
+    estimatedDelivery DateTime @default(now())
+
+    buyerId String
+    buyer   User   @relation(fields: [buyerId], references: [id])
 }
