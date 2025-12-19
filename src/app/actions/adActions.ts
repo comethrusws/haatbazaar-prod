@@ -15,6 +15,21 @@ export async function createAd(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
+  // Ensure user exists in local DB
+  await prisma.user.upsert({
+    where: { id: userId },
+    create: {
+      id: userId,
+      email: userEmail,
+      name: user.fullName || user.firstName || "User",
+      avatar: user.imageUrl,
+    },
+    update: {
+      email: userEmail,
+      avatar: user.imageUrl,
+    }
+  });
+
   const parsedLocation = JSON.parse(location as string);
   const parsedFiles = JSON.parse(files as string); // string[]
 
