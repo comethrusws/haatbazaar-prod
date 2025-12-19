@@ -8,7 +8,19 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'source.unsplash.com',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ui-avatars.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'plus.unsplash.com', 
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com', 
       },
     ],
   },

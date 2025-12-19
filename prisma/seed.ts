@@ -226,7 +226,8 @@ async function main() {
                     category,
                     description: generateDescription(product, 'Brand New', color) + ' | Sold by HaatBazaar Mall - Official Store.',
                     contact: 'mall@haatbazaar.com',
-                    images: [`https://source.unsplash.com/600x400/?${encodeURIComponent(product.brand + ' ' + category)}`],
+                    images: [`https://picsum.photos/seed/${Math.floor(Math.random() * 99999)}/600/400`],
+
                     location: { lat: locData.lat, lng: locData.lng },
                     userId: MALL_USER_ID,
                 });
@@ -251,7 +252,7 @@ async function main() {
                 category,
                 description: generateDescription(product, condition, color) + ` Contact: 98${Math.floor(10000000 + Math.random() * 90000000)}`,
                 contact: `98${Math.floor(10000000 + Math.random() * 90000000)}`,
-                images: [`https://source.unsplash.com/600x400/?${encodeURIComponent(product.name)}`],
+                images: [`https://picsum.photos/seed/${Math.floor(Math.random() * 99999)}/600/400`],
                 location: { lat: locData.lat, lng: locData.lng },
                 userId: userId,
             });
