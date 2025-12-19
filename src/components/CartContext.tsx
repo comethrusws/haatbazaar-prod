@@ -8,6 +8,7 @@ export type CartItem = {
     price: number;
     image?: string;
     location?: { lat: number; lng: number };
+    quantity?: number;
 };
 
 type CartContextType = {
@@ -40,9 +41,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     function addToCart(item: CartItem) {
         setCart(prev => {
-            // Prevent duplicates for simplicity if needed, or allow quantity
-            if (prev.find(i => i.id === item.id)) return prev;
-            return [...prev, item];
+            const existing = prev.find(i => i.id === item.id);
+            if (existing) {
+                return prev.map(i => i.id === item.id
+                    ? { ...i, quantity: (i.quantity || 1) + (item.quantity || 1) }
+                    : i
+                );
+            }
+            return [...prev, { ...item, quantity: item.quantity || 1 }];
         });
         setCartOpen(true);
     }

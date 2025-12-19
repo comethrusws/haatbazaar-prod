@@ -9,6 +9,7 @@ import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import { BsPencil } from "react-icons/bs";
 import MessageButton from "@/components/MessageButton";
+import BuyBlock from "@/components/BuyBlock";
 
 type Props = {
   params: Promise<{
@@ -45,7 +46,15 @@ export default async function SingleAdPage(args: Props) {
 
         <div className="md:col-span-2 flex flex-col gap-4">
           <h1 className="text-3xl font-bold text-gray-900">{adDoc.title}</h1>
-          <p className="text-2xl font-bold text-walmart-blue">{formatMoney(adDoc.price)}</p>
+
+          {/* Replaced simple price display with BuyBlock */}
+          {!isOwner && (
+            <BuyBlock ad={adDoc} isMall={adDoc.userId === 'haatbazaar-mall'} />
+          )}
+
+          {isOwner && (
+            <p className="text-2xl font-bold text-walmart-blue">{formatMoney(adDoc.price)}</p>
+          )}
 
           {isOwner && (
             <div className="flex gap-2">
