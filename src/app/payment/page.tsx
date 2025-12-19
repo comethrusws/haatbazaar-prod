@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { createOrder } from "@/app/actions/orderActions";
+import { getDeliveryEstimate, formatDeliveryDate } from "@/libs/delivery";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function PaymentPage() {
     const { cart, clearCart } = useCart();
@@ -101,6 +103,32 @@ export default function PaymentPage() {
                         <span>Total Amount</span>
                         <span>{formatMoney(total)}</span>
                     </div>
+
+                    {/* Estimated Delivery Date */}
+                    {cart.length > 0 && (() => {
+                        // Get the earliest delivery estimate from all cart items
+                        const estimates = cart.map(item => getDeliveryEstimate(item.location));
+                        // Use the fastest delivery option available
+                        const fastestEstimate = estimates.reduce((fastest, current) => {
+                            const priority = { '1 hour': 1, 'Next day': 2, '2 days': 3, '3-5 days': 4, '4-5 business days': 5 };
+                            const fastestPriority = priority[fastest.time as keyof typeof priority] || 99;
+                            const currentPriority = priority[current.time as keyof typeof priority] || 99;
+                            return currentPriority < fastestPriority ? current : fastest;
+                        });
+
+                        return (
+                            <div className="mt-4 pt-4 border-t border-gray-200">
+                                <div className="flex items-center gap-2 text-sm">
+                                    <FontAwesomeIcon icon={fastestEstimate.icon} className={`${fastestEstimate.color} w-4 h-4`} />
+                                    <span className="text-gray-600">Estimated Delivery:</span>
+                                    <span className={`font-semibold ${fastestEstimate.color}`}>
+                                        {formatDeliveryDate(fastestEstimate)}
+                                    </span>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1 ml-6">{fastestEstimate.label}</p>
+                            </div>
+                        );
+                    })()}
                 </div>
 
                 {/* Payment Gateway Mock */}
