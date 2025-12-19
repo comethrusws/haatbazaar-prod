@@ -62,7 +62,7 @@ export default async function Home(props: {
     <div className="space-y-12">
       {/* Hero Banner */}
       {!phrase && !category && (
-        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-purple-700 rounded-2xl overflow-hidden shadow-xl">
+        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-sky-700 rounded-2xl overflow-hidden shadow-xl">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200')] bg-cover bg-center opacity-20"></div>
           <div className="relative px-8 py-16 md:py-24 text-white">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Expect more. Pay Less.</h1>
