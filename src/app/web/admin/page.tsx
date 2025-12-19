@@ -1,13 +1,18 @@
 import { getMallInventory, getOrders } from "@/actions/admin";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function AdminDashboard() {
+    const cookieStore = await cookies();
+    if (!cookieStore.get('admin_session')) redirect('/web/admin/login');
+
     const inventory = await getMallInventory();
     const orders = await getOrders();
 
-    const totalStock = inventory.reduce((acc, item) => acc + item.stock, 0);
-    const lowStock = inventory.filter(item => item.stock < 5).length;
-    const pendingOrders = orders.filter(o => o.status === 'PENDING').length;
+    const totalStock = inventory.reduce((acc: number, item: any) => acc + item.stock, 0);
+    const lowStock = inventory.filter((item: any) => item.stock < 5).length;
+    const pendingOrders = orders.filter((o: any) => o.status === 'PENDING').length;
 
     return (
         <div>

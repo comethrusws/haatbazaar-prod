@@ -62,14 +62,22 @@ export default async function SingleAdPage(args: Props) {
             <p className="text-gray-600 text-sm leading-relaxed">{adDoc.description}</p>
           </div>
 
-          <h3 className="font-bold mb-2">Seller Info</h3>
-          <p className="text-gray-600 text-sm">
-            Contact: <span className="font-medium text-gray-900">{adDoc.contact}</span>
-          </p>
-          <p className="text-gray-600 text-sm">
-            Email: <span className="font-medium text-gray-900">{adDoc.user?.email || 'N/A'}</span>
-          </p>
-          {!isOwner && user && (
+
+          {/* Seller Info - Hide for Mall */}
+          {adDoc.userId !== 'haatbazaar-mall' && (
+            <>
+              <h3 className="font-bold mb-2">Seller Info</h3>
+              <p className="text-gray-600 text-sm">
+                Contact: <span className="font-medium text-gray-900">{adDoc.contact}</span>
+              </p>
+              <p className="text-gray-600 text-sm">
+                Email: <span className="font-medium text-gray-900">{adDoc.user?.email || 'N/A'}</span>
+              </p>
+            </>
+          )}
+
+          {/* Chat Button - Only for normal ads, if logged in and not owner */}
+          {adDoc.userId !== 'haatbazaar-mall' && !isOwner && user && (
             <div className="mt-4">
               <MessageButton adId={adDoc.id} />
             </div>

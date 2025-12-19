@@ -5,7 +5,6 @@ import { revalidatePath } from "next/cache";
 
 const MALL_USER_ID = 'haatbazaar-mall';
 
-// --- Inventory (Mall Products) ---
 
 export async function getMallInventory() {
     return await prisma.ad.findMany({
@@ -28,7 +27,7 @@ export async function createMallProduct(data: {
         data: {
             ...data,
             userId: MALL_USER_ID,
-            contact: 'HaatBazaar Official', // Default contact for Mall
+            contact: 'HaatBazaar Official',
             status: 'ACTIVE',
         },
     });
@@ -55,7 +54,6 @@ export async function deleteMallProduct(adId: string) {
 }
 
 
-// --- Categories ---
 
 export async function getCategories() {
     return await prisma.category.findMany({
@@ -118,18 +116,55 @@ export async function deleteOffer(id: string) {
     revalidatePath('/web/admin/offers');
 }
 
-// --- Orders ---
 
 export async function getOrders() {
-    return await prisma.order.findMany({
+    const realOrders = await prisma.order.findMany({
         include: {
             buyer: true,
         },
         orderBy: { createdAt: 'desc' },
     });
+
+    if (realOrders.length > 0) return realOrders;
+
+    return [
+        {
+            id: "ORD-7382-MOCK",
+            total: 15500,
+            status: "PENDING",
+            items: JSON.stringify([{ id: "p1", title: "Samsung Galaxy M12", price: 15000, qty: 1 }]),
+            createdAt: new Date(),
+            estimatedDelivery: new Date(Date.now() + 86400000),
+            buyer: { name: "Aarav Sharma", email: "aarav.test@example.com", id: "user_mock_1" }
+        },
+        {
+            id: "ORD-9921-MOCK",
+            total: 2500,
+            status: "DELIVERED",
+            items: JSON.stringify([{ id: "p2", title: "Wireless Earbuds", price: 2500, qty: 1 }]),
+            createdAt: new Date(Date.now() - 172800000), // 2 days ago
+            estimatedDelivery: new Date(Date.now() - 86400000),
+            buyer: { name: "Sita Poudel", email: "sita.p@example.com", id: "user_mock_2" }
+        },
+        {
+            id: "ORD-1123-MOCK",
+            total: 45000,
+            status: "SHIPPED",
+            items: JSON.stringify([{ id: "p3", title: "Dell Monitor 24", price: 45000, qty: 1 }]),
+            createdAt: new Date(Date.now() - 86400000), // 1 day ago
+            estimatedDelivery: new Date(Date.now() + 172800000),
+            buyer: { name: "Hari Bahadur", email: "hari.b@example.com", id: "user_mock_3" }
+        }
+    ] as any; // Cast to any to match Prisma return type roughly
 }
 
 export async function updateOrderStatus(orderId: string, status: string) {
+    //  revalidate if mock prdt (won't persist but UI might update if client side state wasn't full reload)
+    if (orderId.includes('MOCK')) {
+        revalidatePath('/web/admin/orders');
+        return { id: orderId, status };
+    }
+
     const order = await prisma.order.update({
         where: { id: orderId },
         data: { status },
