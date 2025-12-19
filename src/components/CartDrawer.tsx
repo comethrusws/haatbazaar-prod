@@ -26,7 +26,8 @@ export default function CartDrawer() {
             alert("Please log in to checkout.");
             return;
         }
-        setIsPaymentOpen(true);
+        setCartOpen(false); // Close drawer
+        window.location.href = '/payment'; // Force navigation or use router
     };
 
     const handlePaymentSuccess = async () => {

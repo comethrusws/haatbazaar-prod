@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useCart } from "./CartContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartPlus, faBolt } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/navigation";
 
 type Props = {
     ad: any;
@@ -12,6 +13,7 @@ type Props = {
 
 export default function BuyBlock({ ad, isMall }: Props) {
     const { addToCart, setCartOpen } = useCart();
+    const router = useRouter();
     const [qty, setQty] = useState(1);
 
     const handleAddToCart = () => {
@@ -27,8 +29,7 @@ export default function BuyBlock({ ad, isMall }: Props) {
 
     const handleBuyNow = () => {
         handleAddToCart();
-        setCartOpen(true);
-        // In a real app, this might redirect straight to checkout with just this item
+        router.push('/payment');
     };
 
     return (
