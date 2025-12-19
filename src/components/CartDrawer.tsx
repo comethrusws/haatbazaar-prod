@@ -14,35 +14,17 @@ export default function CartDrawer() {
     const { cart, removeFromCart, cartOpen, setCartOpen, clearCart } = useCart();
     const { user } = useUser();
 
-    const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-    const [orderProcessing, setOrderProcessing] = useState(false);
-
     if (!cartOpen) return null;
 
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    const total = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
 
     const handleCheckout = () => {
         if (!user) {
             alert("Please log in to checkout.");
             return;
         }
-        setCartOpen(false); // Close drawer
-        window.location.href = '/payment'; // Force navigation or use router
-    };
-
-    const handlePaymentSuccess = async () => {
-        setIsPaymentOpen(false);
-        setOrderProcessing(true);
-        try {
-            await createOrder(cart, total);
-            clearCart();
-            setCartOpen(false);
-            alert("Order Confirmed! Check your email.");
-        } catch (error: any) {
-            alert("Order failed: " + error.message);
-        } finally {
-            setOrderProcessing(false);
-        }
+        setCartOpen(false);
+        window.location.href = '/payment';
     };
 
     return (
@@ -79,6 +61,7 @@ export default function CartDrawer() {
                                     <div className="flex-grow">
                                         <h3 className="font-bold text-sm line-clamp-2 mb-1">{item.title}</h3>
                                         <p className="font-bold text-walmart-blue">{formatMoney(item.price)}</p>
+                                        <p className="text-xs text-gray-500">Qty: {item.quantity || 1}</p>
 
                                         {/* Delivery Estimate */}
                                         <div className={`text-xs mt-1 ${delivery.color}`}>
@@ -101,39 +84,19 @@ export default function CartDrawer() {
 
                 <div className="p-4 border-t bg-gray-50">
                     <div className="flex justify-between font-bold text-lg mb-2">
-                        <span>Estimated Total</span>
+                        <span>more Estimated Total</span>
                         <span>{formatMoney(total)}</span>
                     </div>
 
-                    {/* Slowest Delivery Estimate */}
-                    {cart.length > 0 && (
-                        <div className="text-xs text-gray-500 mb-4 text-center border-t pt-2">
-                            All items delivered by: {formatDeliveryDate(
-                                cart.reduce((slowest, item) => {
-                                    const est = getDeliveryEstimate(item.location);
-                                    const priority = { '1 hour': 1, 'Next day': 2, '2 days': 3, '4-5 business days': 4 };
-                                    return (priority[est.time as keyof typeof priority] || 0) > (priority[slowest.time as keyof typeof priority] || 0) ? est : slowest;
-                                }, getDeliveryEstimate(cart[0]?.location))
-                            )}
-                        </div>
-                    )}
-
                     <button
                         onClick={handleCheckout}
-                        disabled={cart.length === 0 || orderProcessing}
+                        disabled={cart.length === 0}
                         className="w-full btn-primary py-3 rounded-full text-center block mb-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {orderProcessing ? 'Processing Order...' : 'Continue to Checkout'}
+                        Continue to Checkout
                     </button>
                 </div>
             </div>
-
-            <PaymentModal
-                isOpen={isPaymentOpen}
-                onClose={() => setIsPaymentOpen(false)}
-                onSuccess={handlePaymentSuccess}
-                amount={total}
-            />
         </>
     );
 }
