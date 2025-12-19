@@ -2,11 +2,18 @@
 import { useEffect, useState } from 'react';
 import { createAd, updateAd } from '@/app/actions/adActions';
 import AdTextInputs, { AdTexts } from '@/components/AdTextInputs';
-import LocationPicker, { Location } from '@/components/LocationPicker';
+import dynamic from 'next/dynamic';
 import SubmitButton from '@/components/SubmitButton';
 import UploadArea from '@/components/UploadArea';
 import { useRouter } from 'next/navigation';
 import { FaLocationCrosshairs } from 'react-icons/fa6';
+
+const LocationPicker = dynamic(() => import('@/components/LocationPicker'), {
+  ssr: false,
+  loading: () => <div className="h-[200px] bg-gray-100 animate-pulse rounded" />
+});
+
+import type { Location } from '@/components/LocationPicker';
 
 type Props = {
   id?: string | null;
