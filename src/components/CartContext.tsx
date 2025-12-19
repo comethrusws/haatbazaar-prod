@@ -7,6 +7,7 @@ export type CartItem = {
     title: string;
     price: number;
     image?: string;
+    location?: { lat: number; lng: number };
 };
 
 type CartContextType = {

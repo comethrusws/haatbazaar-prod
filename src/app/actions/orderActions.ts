@@ -33,27 +33,35 @@ export async function createOrder(items: CartItem[], total: number) {
         }
     });
 
-    // 3. Mark Ads as SOLD and Credit Sellers
+    // Mall User ID - products from this user have unlimited stock
+    const MALL_USER_ID = 'haatbazaar-mall';
+
+    // 3. Process each item - Mark user listings as SOLD, credit sellers
     for (const item of items) {
-        // Update Status
-        const ad = await prisma.ad.update({
+        // Fetch the ad to check ownership
+        const ad = await prisma.ad.findUnique({
             where: { id: item.id },
-            data: { status: 'SOLD' },
-            select: { userId: true, title: true } // Need owner ID
+            select: { userId: true, title: true }
         });
 
-        // Credit Seller
-        // Atomic increment of balance
-        if (ad.userId) { // Ad might have broken relation if we are not careful, but schema says userId required
-            await prisma.user.update({
-                where: { id: ad.userId },
-                data: {
-                    balance: { increment: item.price }
-                }
-            });
+        if (!ad) continue;
 
-            // Notify Seller (Optional for now, user asked for buyer email mainly)
+        // Only mark as SOLD if it's a user listing (not Mall product)
+        // Mall products have unlimited inventory
+        if (ad.userId !== MALL_USER_ID) {
+            await prisma.ad.update({
+                where: { id: item.id },
+                data: { status: 'SOLD' }
+            });
         }
+
+        // Credit Seller (both Mall and users get credited)
+        await prisma.user.update({
+            where: { id: ad.userId },
+            data: {
+                balance: { increment: item.price }
+            }
+        });
     }
 
     // 4. Send Email to Buyer
