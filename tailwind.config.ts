@@ -8,6 +8,15 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        walmart: {
+          blue: '#0071dc',
+          yellow: '#ffc220',
+          darkBlue: '#004f9a',
+          lightBlue: '#e6f1fc',
+          gray: '#f2f8fd', // Very light blue/gray background often seen
+        }
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":

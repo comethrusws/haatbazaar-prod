@@ -1,20 +1,38 @@
 'use client';
-import {IKContext, IKUpload} from "imagekitio-react";
-import {IKUploadProps} from "imagekitio-react/src/components/IKUpload/props";
+import { CldUploadWidget } from 'next-cloudinary';
+import { BsPlus } from 'react-icons/bs';
 
-export default function Uploader(props:IKUploadProps) {
+type Props = {
+  onSuccess: (result: any) => void;
+  children?: React.ReactNode;
+}
+
+export default function Uploader({ onSuccess, children }: Props) {
   return (
-    <>
-      <IKContext
-        urlEndpoint={process.env.NEXT_PUBLIC_IK_ENDPOINT}
-        publicKey={process.env.NEXT_PUBLIC_IK_PUBLIC_KEY}
-        authenticator={async () => {
-          const response = await fetch('/api/imagekit/auth');
-          return await response.json();
-        }}
-      >
-        <IKUpload {...props} />
-      </IKContext>
-    </>
+    <CldUploadWidget
+      uploadPreset="haatbazaar_default"
+      onSuccess={(result) => {
+        if (result.event === 'success') {
+          onSuccess(result.info);
+        }
+      }}
+      options={{
+        sources: ['local', 'url', 'camera'],
+        multiple: true,
+      }}
+    >
+      {({ open }) => {
+        return (
+          <div onClick={() => open()}>
+            {children ? children : (
+              <button className="bg-blue-600 text-white px-4 py-2 rounded gap-2 flex items-center">
+                <BsPlus />
+                <span>Upload Images</span>
+              </button>
+            )}
+          </div>
+        );
+      }}
+    </CldUploadWidget>
   );
 }

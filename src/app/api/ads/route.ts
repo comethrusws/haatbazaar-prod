@@ -1,71 +1,69 @@
-import {authOptions} from "@/libs/authOptions";
-import {connect} from "@/libs/helpers";
-import {Ad, AdModel} from "@/models/Ad";
-import {FilterQuery, PipelineStage} from "mongoose";
-import {getServerSession} from "next-auth";
+import { prisma } from "@/libs/helpers";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: Request, res: Response) {
-  await connect();
-  const {searchParams} = new URL(req.url);
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
 
   const phrase = searchParams.get('phrase');
   const category = searchParams.get('category');
   const min = searchParams.get('min');
   const max = searchParams.get('max');
-  const radius = searchParams.get('radius');
-  const center = searchParams.get('center');
 
-  const filter: FilterQuery<Ad> = {};
-  const aggregationSteps: PipelineStage[] = [];
+  // Radius/Center ignored for now in Prisma implementation without PostGIS
+  // const radius = searchParams.get('radius');
+  // const center = searchParams.get('center');
+
+  const where: any = {};
+
   if (phrase) {
-    filter.title = {$regex: '.*' + phrase + '.*', $options: 'i'};
+    where.title = { contains: phrase, mode: 'insensitive' };
   }
   if (category) {
-    filter.category = category;
+    where.category = category;
   }
-  if (min && !max) filter.price = {$gte: min};
-  if (max && !min) filter.price = {$lte: max};
-  if (min && max) filter.price = {$gte: min, $lte: max};
-
-  if (radius && center) {
-    const coords = center.split('-');
-    const lat = parseFloat(coords[0]);
-    const lng = parseFloat(coords[1]);
-    aggregationSteps.push(
-      {
-        $geoNear: {
-          near: {
-            type: 'Point',
-            coordinates: [lng, lat]
-          },
-          query: filter,
-          includeLocs: 'location',
-          distanceField: 'distance',
-          maxDistance: parseInt(radius),
-          spherical: true,
-        }
-      }
-    );
+  if (min || max) {
+    where.price = {};
+    if (min) where.price.gte = parseFloat(min);
+    if (max) where.price.lte = parseFloat(max);
   }
-  aggregationSteps.push({
-    $sort: {createdAt: -1},
-  });
 
-  const adsDocs = await AdModel.aggregate(aggregationSteps);
-
-  // No need to call toObject() on plain objects
-  return new Response(JSON.stringify(adsDocs), {status: 200, headers: {'Content-Type': 'application/json'}});
+  try {
+    const ads = await prisma.ad.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    });
+    return NextResponse.json(ads);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 }
 
-export async function DELETE(req: Request) {
+export async function DELETE(req: NextRequest) {
   const url = new URL(req.url);
   const id = url.searchParams.get('id');
-  await connect();
-  const adDoc = await AdModel.findById(id);
-  const session = await getServerSession(authOptions);
-  if (!adDoc || adDoc.userEmail !== session?.user?.email) {
-    return new Response(JSON.stringify(false), {status: 403, headers: {'Content-Type': 'application/json'}});
+
+  if (!id) {
+    return NextResponse.json(false, { status: 400 });
   }
-  await AdModel.findByIdAndDelete(id);
-  return new Response(JSON.stringify(true), {status: 200, headers: {'Content-Type': 'application/json'}});
+
+  const user = await currentUser();
+  if (!user) {
+    return NextResponse.json(false, { status: 401 });
+  }
+
+  const adDoc = await prisma.ad.findUnique({
+    where: { id }
+  });
+
+  if (!adDoc || adDoc.userId !== user.id) {
+    return NextResponse.json(false, { status: 403 });
+  }
+
+  await prisma.ad.delete({
+    where: { id }
+  });
+
+  return NextResponse.json(true);
 }
