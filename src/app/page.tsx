@@ -65,9 +65,9 @@ export default async function Home(props: {
         <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-purple-700 rounded-2xl overflow-hidden shadow-xl">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200')] bg-cover bg-center opacity-20"></div>
           <div className="relative px-8 py-16 md:py-24 text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Shop Smart. Shop Local.</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Expect more. Pay Less.</h1>
             <p className="text-lg md:text-xl opacity-90 mb-6 max-w-xl">
-              Nepal's trusted managed marketplace. Buy from verified sellers with secure payments and fast delivery.
+              Nepal's trusted managed marketplace. Buy from verified local and international sellers with secure payments and fast delivery.
             </p>
             <div className="flex gap-3">
               <Link href="#mall" className="bg-white text-blue-700 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition shadow-lg">
