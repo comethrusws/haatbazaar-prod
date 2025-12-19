@@ -3,8 +3,9 @@ import UploadThumbnail from "@/components/UploadThumbnail";
 import { Ad } from "@prisma/client";
 import Link from "next/link";
 import { useCart } from "@/components/CartContext";
-import { FaShoppingCart, FaCheckCircle, FaTruck } from "react-icons/fa";
+import { FaShoppingCart, FaCheckCircle, FaTruck } from "react-icons/fa"; // Kept for safety
 import { getDeliveryEstimate } from "@/libs/delivery";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type Props = {
   ad: Ad;
@@ -57,8 +58,8 @@ export default function AdItem({ ad, isMall = false }: Props) {
         </h3>
 
         {/* Delivery Estimate */}
-        <div className={`flex items-center gap-1 text-xs mb-3 ${delivery.color}`}>
-          <FaTruck className="h-3 w-3" />
+        <div className={`flex items-center gap-2 text-xs mb-3 font-medium ${delivery.color}`}>
+          <FontAwesomeIcon icon={delivery.icon} className="h-3 w-3" />
           <span>{delivery.label}</span>
         </div>
 

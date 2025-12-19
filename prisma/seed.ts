@@ -226,8 +226,7 @@ async function main() {
                     category,
                     description: generateDescription(product, 'Brand New', color) + ' | Sold by HaatBazaar Mall - Official Store.',
                     contact: 'mall@haatbazaar.com',
-                    images: [`https://picsum.photos/seed/${Math.floor(Math.random() * 99999)}/600/400`],
-
+                    images: [`https://loremflickr.com/600/400/${category},${product.brand.replace(/\s+/g, '')}?lock=${Math.floor(Math.random() * 99999)}`],
                     location: { lat: locData.lat, lng: locData.lng },
                     userId: MALL_USER_ID,
                 });

@@ -9,6 +9,7 @@ import { useState } from "react";
 import PaymentModal from "./PaymentModal";
 import { createOrder } from "@/app/actions/orderActions";
 import { useUser } from "@clerk/nextjs";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function CartDrawer() {
     const { cart, removeFromCart, cartOpen, setCartOpen, clearCart } = useCart();
@@ -64,8 +65,9 @@ export default function CartDrawer() {
                                         <p className="text-xs text-gray-500">Qty: {item.quantity || 1}</p>
 
                                         {/* Delivery Estimate */}
-                                        <div className={`text-xs mt-1 ${delivery.color}`}>
-                                            {delivery.label} • {deliveryDate}
+                                        <div className={`text-xs mt-1 flex items-center gap-1 ${delivery.color}`}>
+                                            <FontAwesomeIcon icon={delivery.icon} className="size-3" />
+                                            <span>{delivery.label} • {deliveryDate}</span>
                                         </div>
 
                                         <button

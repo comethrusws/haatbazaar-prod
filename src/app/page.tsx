@@ -3,6 +3,7 @@ import { prisma } from "@/libs/db";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { categories } from "@/libs/helpers";
+import { BiCheck, BiLock, BiSolidTruck, BiStar } from "react-icons/bi";
 
 export const dynamic = 'force-dynamic';
 
@@ -158,28 +159,28 @@ export default async function Home(props: {
       {/* Trust Badges */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4 py-8 border-t">
         <div className="flex items-center gap-3 p-4">
-          <div className="size-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xl">✓</div>
+          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl"><BiCheck/></div>
           <div>
             <p className="font-bold text-gray-800">Verified Sellers</p>
             <p className="text-xs text-gray-500">100% authentic products</p>
           </div>
         </div>
         <div className="flex items-center gap-3 p-4">
-          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl">🔒</div>
+          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl"><BiLock/></div>
           <div>
             <p className="font-bold text-gray-800">Secure Payments</p>
             <p className="text-xs text-gray-500">Khalti & IME Pay</p>
           </div>
         </div>
         <div className="flex items-center gap-3 p-4">
-          <div className="size-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xl">🚚</div>
+          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl"><BiSolidTruck/></div>
           <div>
             <p className="font-bold text-gray-800">Fast Delivery</p>
             <p className="text-xs text-gray-500">1 hour in Kathmandu</p>
           </div>
         </div>
         <div className="flex items-center gap-3 p-4">
-          <div className="size-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 text-xl">⭐</div>
+          <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl"><BiStar/></div>
           <div>
             <p className="font-bold text-gray-800">Buyer Protection</p>
             <p className="text-xs text-gray-500">Full refund guarantee</p>
