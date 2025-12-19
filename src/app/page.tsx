@@ -25,7 +25,10 @@ export default async function Home(props: {
   const where: any = { status: 'ACTIVE' };
 
   if (phrase) {
-    where.title = { contains: phrase, mode: 'insensitive' };
+    where.OR = [
+      { title: { contains: phrase, mode: 'insensitive' } },
+      { description: { contains: phrase, mode: 'insensitive' } },
+    ];
   }
   if (category) {
     where.category = category;
