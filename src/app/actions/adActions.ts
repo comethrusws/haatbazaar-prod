@@ -1,7 +1,7 @@
 'use server';
 
 import { Location } from "@/components/LocationPicker";
-import { prisma } from "@/libs/helpers"; // Assumes we added Prisma client export to helpers
+import { prisma } from "@/libs/db";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
