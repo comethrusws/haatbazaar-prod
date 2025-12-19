@@ -24,11 +24,32 @@ export default async function Home(props: {
     where.category = category;
   }
 
+  const categoriesFound = await prisma.category.findMany({ orderBy: { label: 'asc' } });
+
+  const displayCategories = categoriesFound.length > 0 ? categoriesFound.map(c => ({
+    key: c.key,
+    label: c.label,
+    icon: c.icon === 'faMobile' ? categories.find(cat => cat.key === 'electronics')?.icon : categories.find(cat => cat.key === 'other')?.icon || categories[0].icon
+  })) : categories;
+
+  const mappedCategories = categoriesFound.length > 0 ? categoriesFound.map(c => {
+    const staticMatch = categories.find(sc => sc.key === c.key);
+    return {
+      ...c,
+      icon: staticMatch ? staticMatch.icon : categories[5].icon // default to asterisk
+    };
+  }) : categories;
+
+
   const mallProducts = await prisma.ad.findMany({
     where: { userId: MALL_USER_ID, status: 'ACTIVE' },
     orderBy: { createdAt: 'desc' },
     take: 8,
   });
+
+  if (!where.userId) {
+    where.userId = { not: MALL_USER_ID };
+  }
 
   const ads = await prisma.ad.findMany({
     where,
@@ -68,7 +89,7 @@ export default async function Home(props: {
           )}
         </div>
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          {categories.map(cat => (
+          {mappedCategories.map(cat => (
             <Link
               key={cat.key}
               href={`/?category=${cat.key}`}
@@ -86,21 +107,19 @@ export default async function Home(props: {
 
       {/* HaatBazaar Mall Section */}
       {!phrase && !category && mallProducts.length > 0 && (
-        <section id="mall">
-          <div className="flex items-center justify-between mb-4">
+        <section id="mall" className="bg-gradient-to-b from-blue-50 to-white -mx-4 px-4 py-8 md:rounded-2xl">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wide">
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wide shadow-md">
                 Official Store
               </div>
-              <h2 className="text-xl font-bold text-gray-800">HaatBazaar Mall</h2>
+              <h2 className="text-2xl font-bold text-gray-900">HaatBazaar Mall</h2>
             </div>
-            <Link href={`/?category=electronics`} className="text-sm text-blue-600 hover:underline">
+            <Link href={`/?category=electronics`} className="text-sm font-bold text-blue-700 hover:underline">
               View All →
             </Link>
           </div>
-          <p className="text-gray-500 text-sm mb-4">
-            Premium products with guaranteed quality, warranty, and express delivery.
-          </p>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {mallProducts.map(ad => (
               <AdItem key={ad.id} ad={ad} isMall />
@@ -111,14 +130,19 @@ export default async function Home(props: {
 
       {/* Search Results or All Products */}
       <section>
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
-          {phrase ? `Results for "${phrase}"` : category ? `${category.charAt(0).toUpperCase() + category.slice(1)}` : 'Fresh Arrivals'}
-        </h2>
+        <div className="flex items-center gap-3 mb-6">
+          <h2 className="text-xl font-bold text-gray-800">
+            {phrase ? `Results for "${phrase}"` : category ? `${category.charAt(0).toUpperCase() + category.slice(1)}` : 'Pre-loved & Second Hand'}
+          </h2>
+          {!phrase && !category && (
+            <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-bold uppercase">Community</span>
+          )}
+        </div>
 
         {ads.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {ads.map(ad => (
-              <AdItem key={ad.id} ad={ad} isMall={ad.userId === MALL_USER_ID} />
+              <AdItem key={ad.id} ad={ad} />
             ))}
           </div>
         ) : (
