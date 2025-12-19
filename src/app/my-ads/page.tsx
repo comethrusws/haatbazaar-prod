@@ -1,8 +1,9 @@
-'use server';
 
 import AdItem from "@/components/AdItem";
 import { prisma } from "@/libs/db";
 import { currentUser } from "@clerk/nextjs/server";
+
+export const dynamic = 'force-dynamic';
 
 export default async function MyAdsPage() {
   const user = await currentUser();

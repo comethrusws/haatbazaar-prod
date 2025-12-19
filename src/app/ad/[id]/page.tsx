@@ -8,19 +8,21 @@ import { prisma } from "@/libs/db";
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import { BsPencil } from "react-icons/bs";
+import MessageButton from "@/components/MessageButton";
 
 type Props = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
   searchParams: { [key: string]: string };
 };
 
 export default async function SingleAdPage(args: Props) {
-  const adId = args.params.id;
+  const { id: adId } = await args.params;
 
   const adDoc = await prisma.ad.findUnique({
-    where: { id: adId }
+    where: { id: adId },
+    include: { user: true }
   });
 
   if (!adDoc) {
@@ -60,15 +62,18 @@ export default async function SingleAdPage(args: Props) {
             <p className="text-gray-600 text-sm leading-relaxed">{adDoc.description}</p>
           </div>
 
-          <div className="border-t pt-4">
-            <h3 className="font-bold mb-2">Seller Info</h3>
-            <p className="text-gray-600 text-sm">
-              Contact: <span className="font-medium text-gray-900">{adDoc.contact}</span>
-            </p>
-            <p className="text-gray-600 text-sm">
-              Email: <span className="font-medium text-gray-900">{adDoc.userEmail}</span>
-            </p>
-          </div>
+          <h3 className="font-bold mb-2">Seller Info</h3>
+          <p className="text-gray-600 text-sm">
+            Contact: <span className="font-medium text-gray-900">{adDoc.contact}</span>
+          </p>
+          <p className="text-gray-600 text-sm">
+            Email: <span className="font-medium text-gray-900">{adDoc.user?.email || 'N/A'}</span>
+          </p>
+          {!isOwner && user && (
+            <div className="mt-4">
+              <MessageButton adId={adDoc.id} />
+            </div>
+          )}
 
           {locationTuple && (
             <div className="border-t pt-4 h-64 grayscale hover:grayscale-0 transition">

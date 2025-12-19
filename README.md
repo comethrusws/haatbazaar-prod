@@ -1,78 +1,89 @@
-# Classifieds Ads Marketplace
+# Haatbazaar - Managed Marketplace
 
-## Overview
+Haatbazaar is a premium "Managed Marketplace" application where users can buy and sell items with ease. The platform bridges the gap between buyers and sellers by handling payments and delivery logistics.
 
-Classifieds Marketplace is a web application for listing and browsing motorbike ads. Built with Next.js, TypeScript, Tailwind CSS, and using a MongoDB backend, this project provides an intuitive interface for users to create, view, and manage bike listings. 
+![Haatbazaar](public/logo.png)
 
-## Features
+## Be a Seller, Be a Buyer
+*   **Sellers**: List your unused items, wait for them to be sold, and withdraw your earnings directly to your bank/wallet.
+*   **Buyers**: Browse a wide range of verified listings, add to cart, and checkout securely using our integrated payment gateway (IME/Khalti).
 
-- **User Authentication**: Secure login and registration for users.
-- **Ad Creation**: Easily create and publish bike ads with images and details.
-- **Ad Management**: Edit and delete your ads.
-- **Location Integration**: Visualize ad locations on an interactive map using Leaflet.
-- **Responsive Design**: Fully responsive UI that works well on both desktop and mobile devices.
+## Key Features
+
+### Managed Marketplace
+*   **Secure Payments**: Buyers pay Haatbazaar directly. We hold the funds until the order is processed.
+*   **Seller Wallet**: Sellers track earnings in real-time and request withdrawals instantly.
+*   **Orders & Delivery**: Full order tracking from "Pending" to "Delivered".
+
+### Real-time Communication
+*   **Chat with Seller**: instantly message sellers to negotiate or ask details.
+*   **Inbox**: Manage all your conversations in one place.
+
+### Reputation System
+*   **User Reviews**: Rate and review sellers to build trust within the community.
+*   **Public Profiles**: View seller stats, join date, and active listings.
+*   **Advanced Earth Search**: Filter by category, price, and location.
+*   **Responsive**: Optimized for Mobile, Tablet, and Desktop.
 
 ## Tech Stack
+*   **Framework**: [Next.js 16](https://nextjs.org/) (App Router, Server Actions)
+*   **Database**: PostgreSQL (via [Neon](https://neon.tech/)) + [Prisma ORM](https://www.prisma.io/)
+*   **Authentication**: [Clerk](https://clerk.com/) (Google SSO, Email/Password)
+*   **Image Storage**: [Cloudinary](https://cloudinary.com/)
+*   **Emails**: [Resend](https://resend.com/) (Order confirmations, Payouts)
+*   **Styling**: Tailwind CSS + FontAwesome
 
-- **Frontend**: Next.js, TypeScript, Tailwind CSS, Shadcn components.
-- **Backend**: Next.js API routes.
-- **Map Integration**: Leaflet for open-source mapping.
-
-
-## Installation
+## Getting Started
 
 ### Prerequisites
+*   Node.js 18+
+*   PostgreSQL Database
+*   Clerk Account
+*   Cloudinary Account
+*   Resend API Key
 
-- Node.js (>=14.x)
-- npm or Yarn
+### Installation
 
-### Clone the Repository
+1.  **Clone the repo**
+    ```bash
+    git clone https://github.com/your-username/haatbazaar-prod.git
+    cd haatbazaar-prod
+    ```
 
-```bash
-git clone https://github.com/yourusername/bike-classifieds-marketplace.git
-cd bike-classifieds-marketplace
+2.  **Install dependencies**
+    ```bash
+    npm install
+    # or
+    npm install --legacy-peer-deps # if react-leaflet issues occur
+    ```
 
-Install Dependencies
+3.  **Environment Setup**
+    Create `.env` file:
+    ```env
+    DATABASE_URL="postgresql://..."
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+    CLERK_SECRET_KEY=sk_test_...
+    CLOUDINARY_CLOUD_NAME=...
+    CLOUDINARY_KEY=...
+    CLOUDINARY_SECRET=...
+    RESEND_API_KEY=re_...
+    ```
 
-bash
+4.  **Database Migration**
+    ```bash
+    npx prisma db push
+    ```
 
-npm install
-# or
-yarn install
+5.  **Run Development Server**
+    ```bash
+    npm run dev
+    ```
 
-Environment Variables
+## Project Structure
+*   `src/app/actions`: Server Actions for business logic (Ad, Chat, Order, Review).
+*   `src/components`: Reusable UI components (PaymentModal, CartDrawer, StarRating).
+*   `src/libs`: Database connection (`db.ts`) and helpers.
+*   `prisma/schema.prisma`: Database Schema definition.
 
-Create a .env.local file in the root of the project and add the necessary environment variables. For example:
-
-env
-
-NEXT_PUBLIC_MAPS_KEY=your-leaflet-api-key
-DATABASE_URL=your-mongodb-connection-string
-NEXTAUTH_SECRET=your-next-auth-secret
-
-Run the Development Server
-
-bash
-
-npm run dev
-# or
-yarn dev
-
-Navigate to http://localhost:3000 to view the application.
-Building and Deploying
-
-To build the project for production, run:
-
-bash
-
-npm run build
-# or
-yarn build
-
-To start the production server locally:
-
-bash
-
-npm start
-# or
-yarn start
+## License
+MIT
