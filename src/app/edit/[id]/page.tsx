@@ -1,19 +1,20 @@
-'use server';
 
 import AdForm from "@/components/AdForm";
 import { prisma } from "@/libs/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
+export const dynamic = 'force-dynamic';
+
 type Props = {
-  params: {
+  params: Promise<{
     id: string;
-  };
-  searchParams: { [key: string]: string };
+  }>;
+  searchParams: Promise<{ [key: string]: string }>;
 };
 
 export default async function EditPage(props: Props) {
-  const id = props.params.id;
+  const { id } = await props.params;
   const user = await currentUser();
 
   if (!user) {
@@ -40,7 +41,7 @@ export default async function EditPage(props: Props) {
       id={adDoc.id}
       defaultTexts={{
         title: adDoc.title,
-        price: adDoc.price.toString(), // AdForm likely expects string or number, checking AdForm next
+        price: adDoc.price.toString(),
         category: adDoc.category,
         description: adDoc.description,
         contact: adDoc.contact,

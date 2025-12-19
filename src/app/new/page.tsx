@@ -1,6 +1,6 @@
-'use client';
-
 import AdForm from "@/components/AdForm";
+
+export const dynamic = 'force-dynamic';
 
 const locationDefault = {
   lat: 27.6710,
