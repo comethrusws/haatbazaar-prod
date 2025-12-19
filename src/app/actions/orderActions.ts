@@ -62,7 +62,7 @@ export async function createOrder(items: CartItem[], total: number) {
 
     try {
         await resend.emails.send({
-            from: 'Haatbazaar <onboarding@resend.dev>', // Use verified domain or default test domain
+            from: 'Haatbazaar <haatbazaar@basabjha.com.np>', // Use verified domain or default test domain
             to: [userEmail],
             subject: 'Order Confirmed - Haatbazaar',
             html: `
@@ -113,7 +113,7 @@ export async function withdrawFunds() {
 
     try {
         await resend.emails.send({
-            from: 'Haatbazaar <onboarding@resend.dev>',
+            from: 'Haatbazaar <haatbazaar@basabjha.com.np>',
             to: [userEmail],
             subject: 'Payout Processed',
             html: `
