@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 const ADM_EMAIL = process.env.ADMIN_EMAIL || "system@haatbazaar.com";
 const ADM_PASS = process.env.ADMIN_PASSWORD || "admin123";
 
-export async function adminLogin(formData: FormData) {
+export async function adminLogin(prevState: any, formData: FormData) {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 

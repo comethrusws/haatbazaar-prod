@@ -111,7 +111,7 @@ export default async function Home(props: {
         <section id="mall" className="bg-gradient-to-b from-blue-50 to-white -mx-4 px-4 py-8 md:rounded-2xl">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wide shadow-md">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-600 text-white px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wide shadow-md">
                 Official Store
               </div>
               <h2 className="text-2xl font-bold text-gray-900">HaatBazaar Mall</h2>

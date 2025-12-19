@@ -3,6 +3,7 @@ import UploadThumbnail from "@/components/UploadThumbnail";
 import { Ad } from "@prisma/client";
 import Link from "next/link";
 import { useCart } from "@/components/CartContext";
+import { useUser } from "@clerk/nextjs";
 import { FaShoppingCart, FaCheckCircle, FaTruck } from "react-icons/fa"; // Kept for safety
 import { getDeliveryEstimate } from "@/libs/delivery";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,6 +15,7 @@ type Props = {
 
 export default function AdItem({ ad, isMall = false }: Props) {
   const { addToCart } = useCart();
+  const { user } = useUser();
   const location = ad.location as { lat: number; lng: number } | null;
   const delivery = getDeliveryEstimate(location);
 
@@ -31,7 +33,7 @@ export default function AdItem({ ad, isMall = false }: Props) {
 
         {/* Mall Badge */}
         {isMall && (
-          <div className="absolute top-2 left-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-md">
+          <div className="absolute top-2 left-2 bg-gradient-to-r from-blue-400 to-blue-400 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-md">
             <FaCheckCircle className="h-3 w-3" />
             <span>Official</span>
           </div>
@@ -64,7 +66,7 @@ export default function AdItem({ ad, isMall = false }: Props) {
         </div>
 
         {/* Add to Cart Button */}
-        {ad.status === 'ACTIVE' && (
+        {ad.status === 'ACTIVE' && user?.id !== ad.userId && (
           <button
             onClick={(e) => {
               e.preventDefault();

@@ -36,6 +36,11 @@ export async function createOrder(items: CartItem[], total: number) {
 
         if (!ad) continue;
 
+        // Prevent buying own product
+        if (ad.userId === user.id) {
+            throw new Error(`You cannot buy your own product: ${ad.title}`);
+        }
+
         if (ad.userId !== MALL_USER_ID) {
             await prisma.ad.update({
                 where: { id: item.id },
