@@ -2,7 +2,7 @@
 
 import DeleteAdButton from "@/components/DeleteAdButton";
 import Gallery from "@/components/Gallery";
-import LocationMap from "@/components/LocationMap";
+import MapWrapper from "@/components/MapWrapper";
 import { formatMoney, formatDate } from "@/libs/helpers";
 import { prisma } from "@/libs/db";
 import Link from "next/link";
@@ -95,7 +95,7 @@ export default async function SingleAdPage(args: Props) {
           {locationTuple && (
             <div className="border-t pt-4 h-64 grayscale hover:grayscale-0 transition">
               <h3 className="font-bold mb-2">Location</h3>
-              <LocationMap location={locationTuple} />
+              <MapWrapper location={locationTuple} />
             </div>
           )}
 
