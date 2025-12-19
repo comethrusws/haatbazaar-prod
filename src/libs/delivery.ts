@@ -12,15 +12,19 @@ function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): 
     return R * c;
 }
 
+import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import { faBolt, faTruck, faBox, faPlane, faTruckFast } from "@fortawesome/free-solid-svg-icons";
+
 export type DeliveryEstimate = {
     time: string;
     label: string;
     color: string;
+    icon: IconDefinition;
 };
 
 export function getDeliveryEstimate(productLocation: { lat: number; lng: number } | null | undefined): DeliveryEstimate {
     if (!productLocation) {
-        return { time: '3-5 days', label: 'Standard Delivery', color: 'text-gray-500' };
+        return { time: '3-5 days', label: 'Standard Delivery', color: 'text-gray-500', icon: faBox };
     }
 
     const distance = getDistanceKm(
@@ -32,21 +36,21 @@ export function getDeliveryEstimate(productLocation: { lat: number; lng: number 
 
     // Within 40km - Express delivery
     if (distance <= 40) {
-        return { time: '1 hour', label: '⚡ Express Delivery', color: 'text-green-600' };
+        return { time: '1 hour', label: 'Express Delivery', color: 'text-green-600', icon: faBolt };
     }
 
     // Within Kathmandu Valley (~100km radius)
     if (distance <= 100) {
-        return { time: 'Next day', label: '🚚 Next Day Delivery', color: 'text-blue-600' };
+        return { time: 'Next day', label: 'Next Day Delivery', color: 'text-blue-600', icon: faTruck };
     }
 
     // Within Nepal (~500km)
     if (distance <= 500) {
-        return { time: '2 days', label: '📦 Inter-Region Delivery', color: 'text-orange-500' };
+        return { time: '2 days', label: 'Inter-Region Delivery', color: 'text-orange-500', icon: faTruckFast };
     }
 
     // International
-    return { time: '4-5 business days', label: '✈️ International Shipping', color: 'text-purple-600' };
+    return { time: '4-5 business days', label: 'International Shipping', color: 'text-purple-600', icon: faPlane };
 }
 
 export function formatDeliveryDate(estimate: DeliveryEstimate): string {
