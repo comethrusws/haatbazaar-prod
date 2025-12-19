@@ -27,7 +27,6 @@ export async function createAd(formData: FormData) {
     images: parsedFiles,
     location: parsedLocation, // Stored as JSON in Prisma
     userId: userId,
-    userEmail: userEmail,
   };
 
   const newAdDoc = await prisma.ad.create({
