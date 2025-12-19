@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { categories } from "@/libs/helpers";
 import { BiCheck, BiLock, BiSolidTruck, BiStar } from "react-icons/bi";
 import SearchControls from "@/components/SearchControls";
+import RelatedProducts from "@/components/RelatedProducts";
 
 export const dynamic = 'force-dynamic';
 
@@ -75,10 +76,9 @@ export default async function Home(props: {
   let ads = await prisma.ad.findMany({
     where,
     orderBy,
-    take: 100, // Increase limit for detailed filtering
+    take: 100,
   });
 
-  // Location Filtering & Sorting
   if (lat && lng) {
     const userLat = parseFloat(lat);
     const userLng = parseFloat(lng);
@@ -87,7 +87,6 @@ export default async function Home(props: {
     const adsWithDistance = ads.map(ad => {
       let distance = null;
       if (ad.latitude && ad.longitude) {
-        // Distance Calculation (Haversine) - Inline to avoid external dependency issues if any
         const R = 6371;
         const dLat = (ad.latitude - userLat) * Math.PI / 180;
         const dLon = (ad.longitude - userLng) * Math.PI / 180;
@@ -100,14 +99,12 @@ export default async function Home(props: {
       return { ...ad, distance };
     });
 
-    // Filter
     if (radiusKm) {
       ads = adsWithDistance.filter(ad => ad.distance !== null && ad.distance <= radiusKm) as any;
     } else {
       ads = adsWithDistance as any;
     }
 
-    // Sort
     if (sort === 'distance') {
       ads.sort((a: any, b: any) => {
         if (a.distance === null) return 1;
@@ -215,6 +212,9 @@ export default async function Home(props: {
             </Link>
           </div>
         )}
+
+        {/* Related Products */}
+        <RelatedProducts category={category as string} />
       </section>
 
       {/* Trust Badges */}
