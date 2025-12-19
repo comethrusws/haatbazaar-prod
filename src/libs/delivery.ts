@@ -1,8 +1,5 @@
-// Delivery time estimation based on location distance
-// User's default location (Kathmandu center)
 const USER_LOCATION = { lat: 27.7172, lng: 85.3240 };
 
-// Haversine formula to calculate distance between two points
 function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const R = 6371; // Earth's radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;

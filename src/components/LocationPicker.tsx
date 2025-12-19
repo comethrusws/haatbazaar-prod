@@ -43,6 +43,7 @@ export default function LocationPicker({ defaultLocation, onChange, gpsCoords }:
   return (
     <div className="w-full h-[200px]">
       <MapContainer
+        key={`${defaultLocation.lat}-${defaultLocation.lng}`}
         center={[defaultLocation.lat, defaultLocation.lng]}
         zoom={6}
         style={{ height: '100%', width: '100%' }}
