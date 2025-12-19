@@ -34,44 +34,33 @@ const locations = {
   newyork: { lat: 40.7128, lng: -74.0060, region: 'foreign' },
 };
 
-// Conditions and color variants
 const conditions = ['Brand New','Like New','Excellent','Good','Used'];
 const colorVariants = ['Black','White','Silver','Gold','Blue','Red','Green','Space Gray','Midnight','Starlight'];
 
-// Mall product images (stable Unsplash URLs)
 const PRODUCT_IMAGES: Record<string,string> = {
-  "Samsung Galaxy S24 Ultra": "https://images.unsplash.com/photo-1680488851007-197feb27e318?ixlib=rb-4.0.3&w=1080&q=80",
-  "iPhone 15 Pro Max": "https://images.unsplash.com/photo-1570129477492-45c003edd2be?ixlib=rb-4.0.3&w=1080&q=80",
-  "MacBook Pro 14 M3": "https://images.unsplash.com/photo-1612831455543-19db5a8cb1bb?ixlib=rb-4.0.3&w=1080&q=80",
-  "Sony WH-1000XM5 Headphones": "https://images.unsplash.com/photo-1585415430788-2a4b1d81646e?ixlib=rb-4.0.3&w=1080&q=80",
-  "PlayStation 5": "https://images.unsplash.com/photo-1606813906675-1c22d02ab8bb?ixlib=rb-4.0.3&w=1080&q=80",
-  "Xbox Series X": "https://images.unsplash.com/photo-1601041397690-b4c89cd7b30f?ixlib=rb-4.0.3&w=1080&q=80",
-  "Canon EOS R6 Mark II": "https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?ixlib=rb-4.0.3&w=1080&q=80",
-  "Nike Air Jordan 1 Retro": "https://images.unsplash.com/photo-1514315192841-9219403e0168?ixlib=rb-4.0.3&w=1080&q=80",
-  "Adidas Ultraboost 23": "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?ixlib=rb-4.0.3&w=1080&q=80",
-  "Levis 501 Original Jeans": "https://images.unsplash.com/photo-1556909190-b8f44fd1be2f?ixlib=rb-4.0.3&w=1080&q=80",
-  "Ray Ban Aviator Sunglasses": "https://images.unsplash.com/photo-1568304065095-820f77b4b06c?ixlib=rb-4.0.3&w=1080&q=80",
-  "Dyson V15 Detect Vacuum": "https://images.unsplash.com/photo-1584466977777-f8a4380f6779?ixlib=rb-4.0.3&w=1080&q=80",
-  "IKEA MALM Bed Frame King": "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?ixlib=rb-4.0.3&w=1080&q=80",
-  "Herman Miller Aeron Chair": "https://images.unsplash.com/photo-1524758631624-e2822e304c36?ixlib=rb-4.0.3&w=1080&q=80",
-  "Yamaha R15 V4": "https://images.unsplash.com/photo-1528825871115-3581a5387919?ixlib=rb-4.0.3&w=1080&q=80",
-  "Honda Dio Scooter": "https://images.unsplash.com/photo-1571607382675-b79e516d70ec?ixlib=rb-4.0.3&w=1080&q=80",
-  "Royal Enfield Classic 350": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&w=1080&q=80",
-  "Dyson Airwrap Complete": "https://images.unsplash.com/photo-1593032465176-c3ce7970c0d3?ixlib=rb-4.0.3&w=1080&q=80",
-  "MAC Lipstick Collection": "https://images.unsplash.com/photo-1593032465176-c3ce7970c0d3?ixlib=rb-4.0.3&w=1080&q=80",
-  "Fenty Beauty Foundation": "https://images.unsplash.com/photo-1556228724-4e4d0c5ee7d8?ixlib=rb-4.0.3&w=1080&q=80",
-  // ...add remaining to 50 mall products
+  "Samsung Galaxy S24 Ultra": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766126870/galaxy-s24-ultra-highlights-color-titanium-gray-back-mo_jp9qmn.jpg",
+  "iPhone 15 Pro Max": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766126967/iPhone_15_Pro_Max_-_white_titanium-_Overlap_Trans-cropped_jcq3ux.jpg",
+  "MacBook Pro 14 M3": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766126949/refurb-mbp14-m3-spacegray-202402_ptr8r0.jpg",
+  "Sony WH-1000XM5 Headphones": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766126992/6145c1d32e6ac8e63a46c912dc33c5bb_iao4mt.png",
+  "PlayStation 5": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127011/hq720_cfs1ly.jpg",
+  "Xbox Series X": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127035/twarren_xboxseriesxhandson.jpg_gpoqit.jpg",
+  "Canon EOS R6 Mark II": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127063/Pz6TwXzyakaiAbFUf59eq9_dhumcu.jpg",
+  "Nike Air Jordan 1 Retro": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127091/michael_jordan_autographed_nike_air_jordan_1_retro_high_85_varsity_red_95649_k3od3h.jpg",
+  "Nespresso Vertuo Next": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127135/71lh9pfr-eL._AC_UF894_1000_QL80__rwvkqq.jpg",
+  "Philips Hue Smart Lights": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127112/m_61cf70b360fded56550b123e_mdevhy.jpg",
+  "Patagonia Nano Puff Jacket": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127200/86283_Patagonia_Nano_Puffer_Jacket_Raptor_Brown_01.jpg_brcg43.jpg",
 };
 
-// User product images (different)
 const USER_PRODUCT_IMAGES: Record<string,string> = {
-  "Samsung Galaxy S24 Ultra": "https://images.unsplash.com/photo-1581090700227-5d0ec433d7b4?ixlib=rb-4.0.3&w=1080&q=80",
-  "iPhone 15 Pro Max": "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?ixlib=rb-4.0.3&w=1080&q=80",
-  "MacBook Pro 14 M3": "https://images.unsplash.com/photo-1623867342317-8b8bbde7f4ab?ixlib=rb-4.0.3&w=1080&q=80",
-  "Sony WH-1000XM5 Headphones": "https://images.unsplash.com/photo-1581090700227-5d0ec433d7b4?ixlib=rb-4.0.3&w=1080&q=80",
-  "PlayStation 5": "https://images.unsplash.com/photo-1616627982423-8bfa6d8b8c3f?ixlib=rb-4.0.3&w=1080&q=80",
-  // ...add remaining to 50 user products
+  "Yamaha R15 V4": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127596/yamaha-r15-v465ec8ed1ba486_atr6sm.webp",
+  "Honda Dio Scooter":"https://res.cloudinary.com/dkxec2pei/image/upload/v1766127613/honda-dio-125-31-1718090363_c9pa4x.jpg",
+  "Dyson Airwrap Complete": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127640/WEB-308F_H-AW-PDP-Primary-SW_nhiafu.jpg",
+  "MAC Lipstick Collection": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127661/mac-lipstick-collection-and-swatches-1440x1440_xgqz25.jpg",
+  "Fenty Beauty Foundation": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127728/s1925478-main-zoom_xw6ne2.jpg",
+  "Apple AirPods Pro 2": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127703/apple-airpods-pro-2_w71y_cq6tjm.jpg",
+  "Rolex Submariner Watch": "https://res.cloudinary.com/dkxec2pei/image/upload/v1766127794/mans-hand-wearing-rolex-submariner-watch-2FKP734_c2w3nr.jpg",
 };
+
 
 // Helpers
 function randomElement<T>(arr: T[]): T { return arr[Math.floor(Math.random()*arr.length)]; }
