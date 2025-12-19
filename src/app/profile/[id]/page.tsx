@@ -5,6 +5,8 @@ import ReviewForm from "@/components/ReviewForm";
 import StarRating from "@/components/StarRating";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
+import { currentUser } from "@clerk/nextjs/server";
+import EarningsCard from "@/components/EarningsCard";
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +17,8 @@ type Props = {
 export default async function ProfilePage(props: Props) {
     const params = await props.params;
     const userId = params.id;
+    const loggedInUser = await currentUser();
+    const isOwnProfile = loggedInUser?.id === userId;
 
     let user = await prisma.user.findUnique({
         where: { id: userId }
@@ -50,6 +54,10 @@ export default async function ProfilePage(props: Props) {
                     </div>
                 </div>
             </div>
+
+            {isOwnProfile && user && (
+                <EarningsCard balance={user.balance} accountNumber={user.accountNumber} />
+            )}
 
             <div className="grid md:grid-cols-3 gap-8">
                 <div className="md:col-span-2">

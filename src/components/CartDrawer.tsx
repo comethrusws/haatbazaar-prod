@@ -5,13 +5,46 @@ import Image from "next/image";
 import Link from "next/link";
 import { BiTrash } from "react-icons/bi";
 import { FaXmark } from "react-icons/fa6";
+import { useState } from "react";
+import PaymentModal from "./PaymentModal";
+import { createOrder } from "@/app/actions/orderActions";
+import { useUser } from "@clerk/nextjs";
 
 export default function CartDrawer() {
-    const { cart, removeFromCart, cartOpen, setCartOpen } = useCart();
+    const { cart, removeFromCart, cartOpen, setCartOpen, clearCart } = useCart();
+    const { user } = useUser();
+
+    const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+    const [orderProcessing, setOrderProcessing] = useState(false);
 
     if (!cartOpen) return null;
 
     const total = cart.reduce((sum, item) => sum + item.price, 0);
+
+    const handleCheckout = () => {
+        if (!user) {
+            alert("Please log in to checkout.");
+            return;
+        }
+        setIsPaymentOpen(true);
+    };
+
+    const handlePaymentSuccess = async () => {
+        setIsPaymentOpen(false);
+        setOrderProcessing(true);
+        try {
+            await createOrder(cart, total);
+            clearCart();
+            setCartOpen(false);
+            // Show toast or alert
+            // Simple alert for now as requested
+            alert("Order Confirmed! Check your email.");
+        } catch (error: any) {
+            alert("Order failed: " + error.message);
+        } finally {
+            setOrderProcessing(false);
+        }
+    };
 
     return (
         <>
@@ -61,11 +94,27 @@ export default function CartDrawer() {
                         <span>Estimated Total</span>
                         <span>{formatMoney(total)}</span>
                     </div>
-                    <button className="w-full btn-primary py-3 rounded-full text-center block mb-2">
-                        Continue to Checkout
+                    {/* Estimated Delivery Note */}
+                    <div className="text-xs text-gray-500 mb-4 text-center">
+                        Estimated Delivery: {new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                    </div>
+
+                    <button
+                        onClick={handleCheckout}
+                        disabled={cart.length === 0 || orderProcessing}
+                        className="w-full btn-primary py-3 rounded-full text-center block mb-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {orderProcessing ? 'Processing Order...' : 'Continue to Checkout'}
                     </button>
                 </div>
             </div>
+
+            <PaymentModal
+                isOpen={isPaymentOpen}
+                onClose={() => setIsPaymentOpen(false)}
+                onSuccess={handlePaymentSuccess}
+                amount={total}
+            />
         </>
     );
 }
