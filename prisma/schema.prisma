@@ -1,0 +1,81 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id        String   @id // Clerk ID
+    email     String   @unique
+    name      String?
+    avatar    String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    lastSeen  DateTime @default(now())
+
+    ads             Ad[]
+    reviewsWritten  Review[]       @relation("WrittenReviews")
+    reviewsReceived Review[]       @relation("ReceivedReviews")
+    conversations   Conversation[] @relation("UserConversations")
+    messagesSent    Message[]
+}
+
+model Ad {
+    id          String   @id @default(uuid())
+    title       String
+    price       Float
+    category    String
+    description String
+    contact     String
+    images      String[]
+    location    Json?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    conversations Conversation[]
+}
+
+model Review {
+    id        String   @id @default(uuid())
+    rating    Int
+    comment   String?
+    createdAt DateTime @default(now())
+
+    authorId String
+    author   User   @relation("WrittenReviews", fields: [authorId], references: [id])
+
+    targetUserId String
+    targetUser   User   @relation("ReceivedReviews", fields: [targetUserId], references: [id])
+}
+
+model Conversation {
+    id            String   @id @default(uuid())
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    lastMessageAt DateTime @default(now())
+
+    adId String?
+    ad   Ad?     @relation(fields: [adId], references: [id])
+
+    participants User[]    @relation("UserConversations")
+    messages     Message[]
+}
+
+model Message {
+    id        String   @id @default(uuid())
+    content   String
+    createdAt DateTime @default(now())
+    isRead    Boolean  @default(false)
+
+    conversationId String
+    conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+    senderId String
+    sender   User   @relation(fields: [senderId], references: [id])
+}

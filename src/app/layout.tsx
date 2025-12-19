@@ -1,29 +1,38 @@
 import Header from "@/components/Header";
-import {authOptions} from "@/libs/authOptions";
+import Footer from "@/components/Footer";
+import CartDrawer from "@/components/CartDrawer";
 import type { Metadata } from "next";
-import {getServerSession} from "next-auth";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
+import { CartProvider } from "@/components/CartContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Home | classifiedAds",
-  description: "Hello World",
+  title: "Haatbazaar: Expect More. Pay Less",
+  description: "Premium Marketplace: Expect more. Pay Less",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions);
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <Header session={session} />
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <CartProvider>
+        <html lang="en">
+          <body className={inter.className}>
+            <Header />
+            <main className="min-h-screen container-main py-4">
+              {children}
+            </main>
+            <Footer />
+            <CartDrawer />
+          </body>
+        </html>
+      </CartProvider>
+    </ClerkProvider>
   );
 }

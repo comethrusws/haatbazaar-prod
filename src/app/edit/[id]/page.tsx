@@ -1,36 +1,52 @@
 'use server';
 
 import AdForm from "@/components/AdForm";
-import {authOptions} from "@/libs/authOptions";
-import {connect} from "@/libs/helpers";
-import {AdModel} from "@/models/Ad";
-import {getServerSession} from "next-auth";
+import { prisma } from "@/libs/db";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 type Props = {
   params: {
     id: string;
   };
-  searchParams: {[key: string] : string};
+  searchParams: { [key: string]: string };
 };
 
-export default async function EditPage(props:Props) {
+export default async function EditPage(props: Props) {
   const id = props.params.id;
-  await connect();
-  const session = await getServerSession(authOptions);
+  const user = await currentUser();
 
-  const adDoc = await AdModel.findById(id);
+  if (!user) {
+    return <div>You need to be logged in</div>;
+  }
+
+  const adDoc = await prisma.ad.findUnique({
+    where: { id }
+  });
+
   if (!adDoc) {
-    return '404 not found';
+    return <div>404 not found</div>;
   }
-  if (session?.user?.email !== adDoc?.userEmail) {
-    return 'not yours';
+
+  if (user.id !== adDoc.userId) {
+    return <div>You are not the owner of this ad</div>;
   }
+
+  // Parse location safely
+  const location = adDoc.location as { lat: number, lng: number } | null;
 
   return (
     <AdForm
-      id={adDoc._id}
-      defaultTexts={adDoc}
-      defaultFiles={adDoc.files}
-      defaultLocation={{lng:adDoc.location.coordinates[0],lat:adDoc.location.coordinates[1]}} />
+      id={adDoc.id}
+      defaultTexts={{
+        title: adDoc.title,
+        price: adDoc.price.toString(), // AdForm likely expects string or number, checking AdForm next
+        category: adDoc.category,
+        description: adDoc.description,
+        contact: adDoc.contact,
+      }}
+      defaultFiles={adDoc.images}
+      defaultLocation={location || { lat: 0, lng: 0 }}
+    />
   );
 }

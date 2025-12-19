@@ -5,14 +5,12 @@ import AdTextInputs, { AdTexts } from '@/components/AdTextInputs';
 import LocationPicker, { Location } from '@/components/LocationPicker';
 import SubmitButton from '@/components/SubmitButton';
 import UploadArea from '@/components/UploadArea';
-import { faLocationCrosshairs } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { UploadResponse } from 'imagekit/dist/libs/interfaces';
 import { useRouter } from 'next/navigation';
+import { FaLocationCrosshairs } from 'react-icons/fa6';
 
 type Props = {
   id?: string | null;
-  defaultFiles?: UploadResponse[];
+  defaultFiles?: string[];
   defaultLocation: Location;
   defaultTexts?: AdTexts;
 };
@@ -23,7 +21,7 @@ export default function AdForm({
   defaultLocation,
   defaultTexts = {},
 }: Props) {
-  const [files, setFiles] = useState<UploadResponse[]>(defaultFiles);
+  const [files, setFiles] = useState<string[]>(defaultFiles);
   const [location, setLocation] = useState<Location>(defaultLocation);
   const [gpsCoords, setGpsCoords] = useState<Location | null>(null);
   const [isClient, setIsClient] = useState(false);
@@ -50,14 +48,20 @@ export default function AdForm({
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     formData.set('location', JSON.stringify(location));
-    formData.set('files', JSON.stringify(files));
+    formData.set('files', JSON.stringify(files)); // Sends Array of URL strings
     if (id) {
       formData.set('_id', id);
     }
     const result = id
       ? await updateAd(formData)
       : await createAd(formData);
-    router.push('/ad/' + result._id);
+
+    if (result?.id) {
+      router.push('/ad/' + result.id);
+    } else {
+      // Handle error
+      console.error("Ad creation failed");
+    }
   }
 
   if (!isClient) {
@@ -81,7 +85,7 @@ export default function AdForm({
                 onClick={handleFindMyPositionClick}
                 className="border flex p-1 items-center gap-1 justify-center text-gray-600 rounded"
               >
-                <FontAwesomeIcon icon={faLocationCrosshairs} />
+                <FaLocationCrosshairs />
               </button>
             </div>
           </div>

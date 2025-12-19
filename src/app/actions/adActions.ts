@@ -1,51 +1,75 @@
 'use server';
 
-import {Location} from "@/components/LocationPicker";
-import {authOptions} from "@/libs/authOptions";
-import {AdModel} from "@/models/Ad";
-import mongoose from "mongoose";
-import {getServerSession} from "next-auth";
-import {revalidatePath} from "next/cache";
-
-async function connect() {
-  return mongoose.connect(process.env.MONGODB_URL as string);
-}
-
-function locationObjectToMongoObject(location:Location) {
-  return {
-    type: "Point",
-    coordinates: [location.lng, location.lat],
-  };
-}
+import { Location } from "@/components/LocationPicker";
+import { prisma } from "@/libs/db";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
 
 export async function createAd(formData: FormData) {
-  const {files, location, ...data} = Object.fromEntries(formData);
-  await connect();
-  const session = await getServerSession(authOptions);
+  const { files, location, _id, ...data } = Object.fromEntries(formData);
+  const user = await currentUser();
+  const userId = user?.id; // Clerk User ID
+  const userEmail = user?.emailAddresses[0]?.emailAddress;
+
+  if (!userId || !userEmail) {
+    throw new Error("Unauthorized");
+  }
+
+  const parsedLocation = JSON.parse(location as string);
+  const parsedFiles = JSON.parse(files as string); // string[]
+
   const newAdData = {
-    ...data,
-    files: JSON.parse(files as string),
-    location: locationObjectToMongoObject(JSON.parse(location as string)),
-    userEmail: session?.user?.email,
+    title: data.title as string,
+    price: parseFloat(data.price as string),
+    category: data.category as string,
+    description: data.description as string,
+    contact: data.contact as string,
+    images: parsedFiles,
+    location: parsedLocation, // Stored as JSON in Prisma
+    userId: userId,
+    userEmail: userEmail,
   };
-  const newAdDoc = await AdModel.create(newAdData);
+
+  const newAdDoc = await prisma.ad.create({
+    data: newAdData,
+  });
+
   return JSON.parse(JSON.stringify(newAdDoc));
 }
 
 export async function updateAd(formData: FormData) {
-  const {_id, files, location, ...data} = Object.fromEntries(formData);
-  await connect();
-  const session = await getServerSession(authOptions);
-  const adDoc = await AdModel.findById(_id);
-  if (!adDoc || adDoc.userEmail !== session?.user?.email) {
-    return;
+  const { _id, files, location, ...data } = Object.fromEntries(formData);
+  const user = await currentUser();
+
+  if (!user) return;
+
+  const adId = _id as string;
+  const adDoc = await prisma.ad.findUnique({
+    where: { id: adId }
+  });
+
+  if (!adDoc || adDoc.userId !== user.id) {
+    return; // Or throw error
   }
+
+  const parsedLocation = JSON.parse(location as string);
+  const parsedFiles = JSON.parse(files as string);
+
   const adData = {
-    ...data,
-    files: JSON.parse(files as string),
-    location: locationObjectToMongoObject(JSON.parse(location as string)),
+    title: data.title as string,
+    price: parseFloat(data.price as string),
+    category: data.category as string,
+    description: data.description as string,
+    contact: data.contact as string,
+    images: parsedFiles,
+    location: parsedLocation,
   };
-  const newAdDoc = await AdModel.findByIdAndUpdate(_id, adData);
-  revalidatePath(`/ad/`+_id);
-  return JSON.parse(JSON.stringify(newAdDoc));
+
+  const updatedAd = await prisma.ad.update({
+    where: { id: adId },
+    data: adData
+  });
+
+  revalidatePath(`/ad/` + adId);
+  return JSON.parse(JSON.stringify(updatedAd));
 }

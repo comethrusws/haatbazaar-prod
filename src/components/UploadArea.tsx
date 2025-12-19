@@ -1,16 +1,15 @@
 import Uploader from "@/components/Uploader";
 import UploadThumbnail from "@/components/UploadThumbnail";
-import {faImage, faPlus} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {UploadResponse} from "imagekit/dist/libs/interfaces";
-import {Dispatch, SetStateAction, useState} from "react";
+import { FaPlus } from "react-icons/fa6";
+import { Dispatch, SetStateAction, useState } from "react";
+import { BsImage, BsPlus } from "react-icons/bs";
 
 type Props = {
-  files: UploadResponse[];
-  setFiles: Dispatch<SetStateAction<UploadResponse[]>>;
+  files: string[];
+  setFiles: Dispatch<SetStateAction<string[]>>;
 };
 
-export default function UploadArea({files,setFiles}:Props) {
+export default function UploadArea({ files, setFiles }: Props) {
   const [isUploading, setIsUploading] = useState(false);
   return (
     <div className="bg-gray-100 p-4 rounded">
@@ -18,7 +17,7 @@ export default function UploadArea({files,setFiles}:Props) {
         Add photos your product
       </h2>
       <div className="flex flex-col">
-        <FontAwesomeIcon icon={faImage} className="h-24 text-gray-300"/>
+        <BsImage className="h-24 text-gray-300" />
         <label
           className={
             'upload-btn mt-2 border px-4 py-2 rounded inline-flex gap-1 items-center justify-center '
@@ -29,26 +28,29 @@ export default function UploadArea({files,setFiles}:Props) {
             )
           }>
           <Uploader
-            onUploadStart={() => setIsUploading(true)}
-            onSuccess={file => {
-              setFiles(prev => [...prev, file]);
+            onSuccess={result => {
+              // result.secure_url is the URL from Cloudinary
+              if (result && result.secure_url) {
+                setFiles(prev => [...prev, result.secure_url]);
+              }
               setIsUploading(false);
             }}
-          />
-          {isUploading ? (
-            <span>Uploading...</span>
-          ) : (
-            <>
-              <FontAwesomeIcon icon={faPlus}/>
-              <span>Add photos</span>
-            </>
-          )}
+          >
+            {isUploading ? (
+              <span>Uploading...</span>
+            ) : (
+              <>
+                <BsPlus />
+                <span>Add photos</span>
+              </>
+            )}
+          </Uploader>
 
         </label>
         <div className="flex gap-2 mt-2 flex-wrap">
-          {files.map(file => (
-            <div key={file.fileId} className="size-16 rounded overflow-hidden">
-              <UploadThumbnail file={file} />
+          {files.map((url, index) => (
+            <div key={url + index} className="size-16 rounded overflow-hidden">
+              <UploadThumbnail file={url} />
             </div>
           ))}
         </div>

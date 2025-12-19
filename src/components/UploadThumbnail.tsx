@@ -1,34 +1,28 @@
-import MyImage from "@/components/MyImage";
-import {UploadResponse} from "imagekit/dist/libs/interfaces";
+import Image from "next/image";
 import React from "react";
 
 type Props = {
-  file:UploadResponse;
+  file: string; //expect url string
   onClick?: () => void;
 }
 
-export default function UploadThumbnail({file,onClick}:Props) {
-  function handleClick(ev:React.MouseEvent) {
+export default function UploadThumbnail({ file, onClick }: Props) {
+  function handleClick(ev: React.MouseEvent) {
     if (onClick) {
       ev.preventDefault();
       return onClick();
     }
-    location.href = file.url;
   }
-  if (file.fileType === 'image') {
-    return (
-      <a onClick={handleClick} target="_blank">
-        <MyImage
-          width={300}
-          height={300}
-          alt={'product thumbnail'}
-          aiCrop={true}
-          src={file.filePath}
-        />
-      </a>
-    );
-  }
+
   return (
-    <div>{file.url} &raquo;</div>
+    <div onClick={handleClick} className="relative w-full h-full cursor-pointer">
+      <Image
+        src={file}
+        alt="thumbnail"
+        fill
+        className="object-cover"
+        sizes="100px" // thumbnail optimization
+      />
+    </div>
   );
 }
