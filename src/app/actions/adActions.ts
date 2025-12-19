@@ -41,6 +41,8 @@ export async function createAd(formData: FormData) {
     contact: data.contact as string,
     images: parsedFiles,
     location: parsedLocation,
+    latitude: parsedLocation.lat,
+    longitude: parsedLocation.lng,
     userId: userId,
   };
 
@@ -77,6 +79,8 @@ export async function updateAd(formData: FormData) {
     contact: data.contact as string,
     images: parsedFiles,
     location: parsedLocation,
+    latitude: parsedLocation.lat,
+    longitude: parsedLocation.lng,
   };
 
   const updatedAd = await prisma.ad.update({
