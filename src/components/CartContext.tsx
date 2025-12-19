@@ -7,6 +7,8 @@ export type CartItem = {
     title: string;
     price: number;
     image?: string;
+    location?: { lat: number; lng: number };
+    quantity?: number;
 };
 
 type CartContextType = {
@@ -23,25 +25,35 @@ const CartContext = createContext<CartContextType | null>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [cartOpen, setCartOpen] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
         const localCart = localStorage.getItem('haatbazaar_cart');
         if (localCart) {
-            setCart(JSON.parse(localCart));
+            try {
+                setCart(JSON.parse(localCart));
+            } catch (e) {
+                console.error("Failed to parse cart", e);
+            }
         }
+        setIsInitialized(true);
     }, []);
 
     useEffect(() => {
-        if (cart.length > 0) {
-            localStorage.setItem('haatbazaar_cart', JSON.stringify(cart));
-        }
-    }, [cart]);
+        if (!isInitialized) return;
+        localStorage.setItem('haatbazaar_cart', JSON.stringify(cart));
+    }, [cart, isInitialized]);
 
     function addToCart(item: CartItem) {
         setCart(prev => {
-            // Prevent duplicates for simplicity if needed, or allow quantity
-            if (prev.find(i => i.id === item.id)) return prev;
-            return [...prev, item];
+            const existing = prev.find(i => i.id === item.id);
+            if (existing) {
+                return prev.map(i => i.id === item.id
+                    ? { ...i, quantity: (i.quantity || 1) + (item.quantity || 1) }
+                    : i
+                );
+            }
+            return [...prev, { ...item, quantity: item.quantity || 1 }];
         });
         setCartOpen(true);
     }

@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -22,49 +23,63 @@ type Props = {
   gpsCoords: Location | null;
 };
 
-function MapEvents({ onChange }: { onChange: (location: Location) => void }) {
-  useMapEvents({
-    click(e) {
-      onChange({ lat: e.latlng.lat, lng: e.latlng.lng });
-    },
-  });
-  return null;
-}
-
 export default function LocationPicker({ defaultLocation, onChange, gpsCoords }: Props) {
-  const markerRef = useRef<L.Marker>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [mapId] = useState(() => `map-${Math.random().toString(36).substring(7)}`);
 
   useEffect(() => {
-    if (gpsCoords && markerRef.current) {
+    if (!containerRef.current || mapRef.current) return;
+
+    // Initialize map
+    const map = L.map(containerRef.current).setView(
+      [defaultLocation.lat, defaultLocation.lng],
+      6
+    );
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add draggable marker
+    const marker = L.marker([defaultLocation.lat, defaultLocation.lng], {
+      draggable: true
+    }).addTo(map);
+
+    marker.on('dragend', () => {
+      const pos = marker.getLatLng();
+      onChange({ lat: pos.lat, lng: pos.lng });
+    });
+
+    map.on('click', (e) => {
+      marker.setLatLng(e.latlng);
+      onChange({ lat: e.latlng.lat, lng: e.latlng.lng });
+    });
+
+    mapRef.current = map;
+    markerRef.current = marker;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markerRef.current = null;
+    };
+  }, []);
+
+  // Update marker position when GPS coords change
+  useEffect(() => {
+    if (gpsCoords && markerRef.current && mapRef.current) {
       markerRef.current.setLatLng([gpsCoords.lat, gpsCoords.lng]);
+      mapRef.current.setView([gpsCoords.lat, gpsCoords.lng], 13);
     }
   }, [gpsCoords]);
 
   return (
-    <div className="w-full h-[200px]">
-      <MapContainer
-        center={[defaultLocation.lat, defaultLocation.lng]}
-        zoom={6}
-        style={{ height: '100%', width: '100%' }}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        <Marker
-          position={[defaultLocation.lat, defaultLocation.lng]}
-          ref={markerRef}
-          draggable={true}
-          eventHandlers={{
-            dragend(e) {
-              const marker = e.target;
-              const position = marker.getLatLng();
-              onChange({ lat: position.lat, lng: position.lng });
-            },
-          }}
-        />
-        <MapEvents onChange={onChange} />
-      </MapContainer>
-    </div>
+    <div
+      id={mapId}
+      ref={containerRef}
+      className="w-full h-[200px] rounded-lg overflow-hidden border"
+    />
   );
 }

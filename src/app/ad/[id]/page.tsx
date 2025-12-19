@@ -2,13 +2,14 @@
 
 import DeleteAdButton from "@/components/DeleteAdButton";
 import Gallery from "@/components/Gallery";
-import LocationMap from "@/components/LocationMap";
+import MapWrapper from "@/components/MapWrapper";
 import { formatMoney, formatDate } from "@/libs/helpers";
 import { prisma } from "@/libs/db";
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import { BsPencil } from "react-icons/bs";
 import MessageButton from "@/components/MessageButton";
+import BuyBlock from "@/components/BuyBlock";
 
 type Props = {
   params: Promise<{
@@ -45,7 +46,15 @@ export default async function SingleAdPage(args: Props) {
 
         <div className="md:col-span-2 flex flex-col gap-4">
           <h1 className="text-3xl font-bold text-gray-900">{adDoc.title}</h1>
-          <p className="text-2xl font-bold text-walmart-blue">{formatMoney(adDoc.price)}</p>
+
+          {/* Replaced simple price display with BuyBlock */}
+          {!isOwner && (
+            <BuyBlock ad={adDoc} isMall={adDoc.userId === 'haatbazaar-mall'} />
+          )}
+
+          {isOwner && (
+            <p className="text-2xl font-bold text-walmart-blue">{formatMoney(adDoc.price)}</p>
+          )}
 
           {isOwner && (
             <div className="flex gap-2">
@@ -62,14 +71,22 @@ export default async function SingleAdPage(args: Props) {
             <p className="text-gray-600 text-sm leading-relaxed">{adDoc.description}</p>
           </div>
 
-          <h3 className="font-bold mb-2">Seller Info</h3>
-          <p className="text-gray-600 text-sm">
-            Contact: <span className="font-medium text-gray-900">{adDoc.contact}</span>
-          </p>
-          <p className="text-gray-600 text-sm">
-            Email: <span className="font-medium text-gray-900">{adDoc.user?.email || 'N/A'}</span>
-          </p>
-          {!isOwner && user && (
+
+          {/* Seller Info - Hide for Mall */}
+          {adDoc.userId !== 'haatbazaar-mall' && (
+            <>
+              <h3 className="font-bold mb-2">Seller Info</h3>
+              <p className="text-gray-600 text-sm">
+                Contact: <span className="font-medium text-gray-900">{adDoc.contact}</span>
+              </p>
+              <p className="text-gray-600 text-sm">
+                Email: <span className="font-medium text-gray-900">{adDoc.user?.email || 'N/A'}</span>
+              </p>
+            </>
+          )}
+
+          {/* Chat Button - Only for normal ads, if logged in and not owner */}
+          {adDoc.userId !== 'haatbazaar-mall' && !isOwner && user && (
             <div className="mt-4">
               <MessageButton adId={adDoc.id} />
             </div>
@@ -78,7 +95,7 @@ export default async function SingleAdPage(args: Props) {
           {locationTuple && (
             <div className="border-t pt-4 h-64 grayscale hover:grayscale-0 transition">
               <h3 className="font-bold mb-2">Location</h3>
-              <LocationMap location={locationTuple} />
+              <MapWrapper location={locationTuple} />
             </div>
           )}
 

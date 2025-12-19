@@ -4,25 +4,18 @@ import { prisma } from "@/libs/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { Resend } from 'resend';
 
-// Initialize Resend with key from environment
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 type CartItem = {
     id: string; // Ad ID
     price: number;
     title: string;
-    // ...other properties
 };
 
 export async function createOrder(items: CartItem[], total: number) {
     const user = await currentUser();
     if (!user) throw new Error("Unauthorized");
 
-    // 1. Verify items are still ACTIVE
-    // In a real app, strict locking/transaction needed.
-    // For now, we assume check passed.
-
-    // 2. Create Order
     const order = await prisma.order.create({
         data: {
             total,
@@ -33,33 +26,38 @@ export async function createOrder(items: CartItem[], total: number) {
         }
     });
 
-    // 3. Mark Ads as SOLD and Credit Sellers
+    const MALL_USER_ID = 'haatbazaar-mall';
+
     for (const item of items) {
-        // Update Status
-        const ad = await prisma.ad.update({
+        const ad = await prisma.ad.findUnique({
             where: { id: item.id },
-            data: { status: 'SOLD' },
-            select: { userId: true, title: true } // Need owner ID
+            select: { userId: true, title: true }
         });
 
-        // Credit Seller
-        // Atomic increment of balance
-        if (ad.userId) { // Ad might have broken relation if we are not careful, but schema says userId required
-            await prisma.user.update({
-                where: { id: ad.userId },
-                data: {
-                    balance: { increment: item.price }
-                }
-            });
+        if (!ad) continue;
 
-            // Notify Seller (Optional for now, user asked for buyer email mainly)
+        // Prevent buying own product
+        if (ad.userId === user.id) {
+            throw new Error(`You cannot buy your own product: ${ad.title}`);
         }
+
+        if (ad.userId !== MALL_USER_ID) {
+            await prisma.ad.update({
+                where: { id: item.id },
+                data: { status: 'SOLD' }
+            });
+        }
+
+        await prisma.user.update({
+            where: { id: ad.userId },
+            data: {
+                balance: { increment: item.price }
+            }
+        });
     }
 
-    // 4. Send Email to Buyer
     const deliveryDate = order.estimatedDelivery.toLocaleDateString();
 
-    // We strictly use the user's primary email.
     const userEmail = user.emailAddresses[0].emailAddress;
 
     try {
@@ -90,8 +88,6 @@ export async function createOrder(items: CartItem[], total: number) {
         });
     } catch (e) {
         console.error("Failed to send email:", e);
-        // Do not fail the transaction just because email failed?
-        // Usually logical to log it but return success.
     }
 
     return order;
@@ -108,13 +104,11 @@ export async function withdrawFunds() {
 
     const amount = dbUser.balance;
 
-    // Reset balance
     await prisma.user.update({
         where: { id: user.id },
         data: { balance: 0 }
     });
 
-    // Send Email
     const userEmail = user.emailAddresses[0].emailAddress;
 
     try {

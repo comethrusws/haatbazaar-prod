@@ -16,9 +16,14 @@ export default function MessageButton({ adId }: { adId: string }) {
         try {
             const conversation = await createConversation(adId);
             router.push(`/inbox/${conversation.id}`);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("This is your own ad!");
+            const msg = error?.message || "Failed to start chat";
+            if (msg.includes('chat with yourself')) {
+                alert("This is your own ad!");
+            } else {
+                alert(`Error: ${msg}`);
+            }
             setIsLoading(false);
         }
     }

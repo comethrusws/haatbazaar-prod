@@ -23,6 +23,27 @@ export async function createConversation(adId: string) {
     }
 
     // Check if conversation already exists for this ad between these users
+    // But first, ENSURE the current user exists in our DB.
+    // Clerk user might not be synced yet.
+
+    // Check if user exists, if not create.
+    const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+    if (!dbUser) {
+        // Essential fields
+        const email = user.emailAddresses[0]?.emailAddress || "no-email@example.com";
+        const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || "Anonymous";
+        const avatar = user.imageUrl;
+
+        await prisma.user.create({
+            data: {
+                id: user.id,
+                email,
+                name,
+                avatar
+            }
+        });
+    }
+
     const existingConv = await prisma.conversation.findFirst({
         where: {
             adId: adId,
@@ -39,16 +60,6 @@ export async function createConversation(adId: string) {
     }
 
     // Create new conversation
-    // Note: We need to ensure participants exist in our local User table first?
-    // Our schema implies relation to User. We might need to Upsert users here just in case.
-    // Ideally, users are synced via verify/webhook, but let's be safe.
-
-    /* 
-       We can skip upsert if we assume users are created on login/activity, 
-       but `prisma db push` might have enforced strict FKs.
-       Let's attempt creation.
-    */
-
     const conversation = await prisma.conversation.create({
         data: {
             adId: adId,
