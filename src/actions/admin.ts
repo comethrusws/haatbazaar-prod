@@ -159,7 +159,6 @@ export async function getOrders() {
 }
 
 export async function updateOrderStatus(orderId: string, status: string) {
-    //  revalidate if mock prdt (won't persist but UI might update if client side state wasn't full reload)
     if (orderId.includes('MOCK')) {
         revalidatePath('/web/admin/orders');
         return { id: orderId, status };
