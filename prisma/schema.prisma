@@ -37,6 +37,8 @@ model Ad {
     images      String[]
     location    Json?
     status      String   @default("ACTIVE") // ACTIVE, SOLD, ARCHIVED
+    stock       Int      @default(1)
+    condition   String   @default("USED") // NEW, USED, REFURBISHED
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
 
@@ -95,4 +97,23 @@ model Order {
 
     buyerId String
     buyer   User   @relation(fields: [buyerId], references: [id])
+}
+
+model Category {
+    id        String   @id @default(uuid())
+    key       String   @unique
+    label     String
+    icon      String // FontAwesome icon name or URL
+    createdAt DateTime @default(now())
+}
+
+model Offer {
+    id            String    @id @default(uuid())
+    title         String
+    description   String
+    code          String    @unique
+    discountValue Float
+    isActive      Boolean   @default(true)
+    createdAt     DateTime  @default(now())
+    expiresAt     DateTime?
 }
