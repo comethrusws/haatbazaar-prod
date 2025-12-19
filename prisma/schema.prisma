@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Ad {
+  id          String   @id @default(uuid())
+  title       String
+  price       Float
+  category    String
+  description String
+  contact     String
+  images      String[]
+  location    Json?    // Using Json to store {lat, lng} or similar structure
+  userId      String   // Clerk User ID
+  userEmail   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
