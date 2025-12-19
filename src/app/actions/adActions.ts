@@ -25,7 +25,7 @@ export async function createAd(formData: FormData) {
     description: data.description as string,
     contact: data.contact as string,
     images: parsedFiles,
-    location: parsedLocation, // Stored as JSON in Prisma
+    location: parsedLocation,
     userId: userId,
   };
 
