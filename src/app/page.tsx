@@ -1,5 +1,5 @@
 import AdItem from "@/components/AdItem";
-import { prisma } from "@/libs/helpers";
+import { prisma } from "@/libs/db";
 
 export default async function Home({
   searchParams,

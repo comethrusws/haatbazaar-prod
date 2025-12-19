@@ -1,4 +1,4 @@
-import { prisma } from "@/libs/helpers";
+import { prisma } from "@/libs/db";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,10 +9,6 @@ export async function GET(req: NextRequest) {
   const category = searchParams.get('category');
   const min = searchParams.get('min');
   const max = searchParams.get('max');
-
-  // Radius/Center ignored for now in Prisma implementation without PostGIS
-  // const radius = searchParams.get('radius');
-  // const center = searchParams.get('center');
 
   const where: any = {};
 

@@ -1,13 +1,11 @@
-import dynamic from 'next/dynamic';
+'use client';
 
-const AdForm = dynamic(() => import("@/components/AdForm"), {
-  ssr: false,
-});
+import AdForm from "@/components/AdForm";
 
 const locationDefault = {
   lat: 27.6710,
   lng: 85.4298,
-}
+};
 
 export default function NewAdPage() {
   return (

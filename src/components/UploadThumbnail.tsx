@@ -2,7 +2,7 @@ import Image from "next/image";
 import React from "react";
 
 type Props = {
-  file: string; // Now expecting a URL string
+  file: string; //expect url string
   onClick?: () => void;
 }
 
@@ -12,10 +12,8 @@ export default function UploadThumbnail({ file, onClick }: Props) {
       ev.preventDefault();
       return onClick();
     }
-    // window.open(file, '_blank');
   }
 
-  // Check if it's an image URL (rough check or assume yes since we control upload)
   return (
     <div onClick={handleClick} className="relative w-full h-full cursor-pointer">
       <Image
@@ -23,7 +21,7 @@ export default function UploadThumbnail({ file, onClick }: Props) {
         alt="thumbnail"
         fill
         className="object-cover"
-        sizes="100px" // Optimization for thumbnail
+        sizes="100px" // thumbnail optimization
       />
     </div>
   );

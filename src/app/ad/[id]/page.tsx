@@ -3,7 +3,8 @@
 import DeleteAdButton from "@/components/DeleteAdButton";
 import Gallery from "@/components/Gallery";
 import LocationMap from "@/components/LocationMap";
-import { formatMoney, formatDate, prisma } from "@/libs/helpers";
+import { formatMoney, formatDate } from "@/libs/helpers";
+import { prisma } from "@/libs/db";
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import { BsPencil } from "react-icons/bs";
@@ -29,7 +30,7 @@ export default async function SingleAdPage(args: Props) {
   const user = await currentUser();
   const isOwner = user && user.id === adDoc.userId;
 
-  // Safe Cast for Json Location
+  // safe cast for op locationj data
   const locationJson = adDoc.location as { lat: number, lng: number } | null;
   const locationTuple: [number, number] | null = locationJson ? [locationJson.lat, locationJson.lng] : null;
 

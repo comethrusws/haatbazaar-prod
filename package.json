@@ -13,6 +13,9 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.4",
+    "@fortawesome/fontawesome-svg-core": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.1",
     "@googlemaps/js-api-loader": "^1.16.6",
     "@types/google.maps": "^3.55.5",
     "@types/leaflet": "^1.9.12",
