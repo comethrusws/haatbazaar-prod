@@ -29,7 +29,7 @@ export default function EarningsCard({ balance, accountNumber }: Props) {
     };
 
     return (
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl p-6 shadow-lg mb-8">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-600 text-white rounded-xl p-6 shadow-lg mb-8">
             <div className="flex justify-between items-start">
                 <div>
                     <h2 className="flex items-center gap-2 text-lg font-medium opacity-90 mb-1">

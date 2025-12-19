@@ -111,7 +111,11 @@ export default function Header() {
 
           {/* User Menu */}
           <SignedIn>
-            <div className="ml-1">
+            <div className="ml-1 flex items-center gap-3">
+              <Link href={`/profile/${user?.id}`} className="hidden md:flex flex-col items-end text-xs hover:bg-white/10 p-2 rounded px-3 transition">
+                <span className="font-bold">{user?.firstName}</span>
+                <span className="opacity-70">Earnings & Profile</span>
+              </Link>
               <UserButton
                 afterSignOutUrl="/"
                 appearance={{

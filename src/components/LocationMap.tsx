@@ -1,40 +1,64 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useEffect, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
-import { useEffect, useState } from 'react';
 import L from 'leaflet';
 
-// Fix for default marker icon missing
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-type Props = {
+export type MapProps = {
   location: [number, number];
 };
 
-export default function LocationMap({ location }: Props) {
-  // Use a key to force re-mounting if location changes, ensuring clean instance
+export default function LocationMap({ location }: MapProps) {
+  const mapRef = useRef<L.Map | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [mapId] = useState(() => `map-view-${Math.random().toString(36).substring(7)}`);
+
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    // Initialize map
+    const map = L.map(containerRef.current, {
+      zoomControl: false,
+      scrollWheelZoom: false,
+      dragging: false,
+      attributionControl: false
+    }).setView(
+      location,
+      13
+    );
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    // Add marker
+    L.marker(location).addTo(map);
+
+    mapRef.current = map;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []); // Run once on mount
+
+  // Update view if location prop changes
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.setView(location, 13);
+      // Clear existing markers and add new one
+      mapRef.current.eachLayer((layer) => {
+        if (layer instanceof L.Marker) {
+          layer.remove();
+        }
+      });
+      L.marker(location).addTo(mapRef.current);
+    }
+  }, [location[0], location[1]]);
+
   return (
-    <div className="h-full w-full">
-      <MapContainer
-        key={`${location[0]}-${location[1]}`}
-        center={location}
-        zoom={13}
-        style={{ height: '100%', width: '100%' }}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        <Marker position={location}>
-          <Popup>Location</Popup>
-        </Marker>
-      </MapContainer>
-    </div>
+    <div
+      id={mapId}
+      ref={containerRef}
+      className="w-full h-full rounded-lg overflow-hidden"
+    />
   );
 }
