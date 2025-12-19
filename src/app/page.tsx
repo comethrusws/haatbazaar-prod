@@ -72,11 +72,24 @@ export default async function Home(props: {
     where.userId = { not: MALL_USER_ID };
   }
 
+  console.log('--- Debug Page ---');
+  console.log('SearchParams:', searchParams);
+  console.log('Phrase:', phrase);
+  console.log('Category:', category);
+  console.log('Where:', JSON.stringify(where, null, 2));
+
   let ads = await prisma.ad.findMany({
     where,
     orderBy,
     take: 100, // Increase limit for detailed filtering
   });
+
+  console.log('Ads Found:', ads.length);
+  if (ads.length === 0) {
+    console.log('No ads found. Checking all active ads samples:');
+    const sample = await prisma.ad.findMany({ where: { status: 'ACTIVE' }, take: 5, select: { title: true, category: true } });
+    console.log(sample);
+  }
 
   // Location Filtering & Sorting
   if (lat && lng) {
